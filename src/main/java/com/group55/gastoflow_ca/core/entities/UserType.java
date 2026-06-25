@@ -20,6 +20,19 @@ public class UserType {
     private Set<Permission> permissions;
 
     public static UserType create(
+            String name,
+            Set<Permission> permissions) {
+
+        UserType userType = new UserType();
+
+        userType.id = UUID.randomUUID();
+        userType.name = name;
+        userType.permissions = permissions;
+
+        return userType;
+    }
+
+    public static UserType create(
             UUID id,
             String name,
             Set<Permission> permissions) {

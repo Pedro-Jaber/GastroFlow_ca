@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.enums.Permission;
 
-public record UserTypeDTO(
+public record UserTypeOutputDTO(
                 UUID id,
                 String name,
                 Set<Permission> permissions) {
