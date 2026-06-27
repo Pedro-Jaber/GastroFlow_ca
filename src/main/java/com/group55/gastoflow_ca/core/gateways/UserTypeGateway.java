@@ -3,7 +3,6 @@ package com.group55.gastoflow_ca.core.gateways;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.group55.gastoflow_ca.core.dtos.usertype.CreateUserTypeInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
@@ -24,7 +23,8 @@ public class UserTypeGateway implements IUserTypeGateway {
 
     @Override
     public UserType saveNewUserType(UserType newUserType) {
-        final CreateUserTypeInputDataDTO newUserTypeDTO = new CreateUserTypeInputDataDTO(
+        final UserTypeDTO newUserTypeDTO = new UserTypeDTO(
+                newUserType.getId(),
                 newUserType.getName(),
                 newUserType.getPermissions());
 
@@ -54,18 +54,8 @@ public class UserTypeGateway implements IUserTypeGateway {
 
     @Override
     public Optional<UserType> findByName(String name) {
-        final UserTypeDTO userTypeDTO = this.dataStorageSource.findByName(name);
-
-        if (userTypeDTO == null) {
-            return Optional.empty();
-        }
-
-        var userType = UserType.create(
-                userTypeDTO.id(),
-                userTypeDTO.name(),
-                userTypeDTO.permissions());
-
-        return Optional.of(userType);
+        return this.dataStorageSource.findByName(name)
+                .map(dto -> UserType.create(dto.id(), dto.name(), dto.permissions()));
     }
 
 }
