@@ -1,4 +1,4 @@
-package com.group55.gastoflow_ca.core.usecases;
+package com.group55.gastoflow_ca.core.usecases.userType;
 
 import java.util.Optional;
 import java.util.Set;
@@ -22,7 +22,6 @@ import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeAlreadyExistsException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
-import com.group55.gastoflow_ca.core.usecases.userType.CreateUserTypeUseCase;
 
 @ExtendWith(MockitoExtension.class)
 class CreateUserTypeUseCaseTest {
@@ -33,7 +32,7 @@ class CreateUserTypeUseCaseTest {
     private CreateUserTypeUseCase useCase;
 
     @BeforeEach
-    void setUp() {
+    void setup() {
         useCase = CreateUserTypeUseCase.create(userTypeGateway);
     }
 
