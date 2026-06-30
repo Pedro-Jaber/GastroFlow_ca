@@ -6,10 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.group55.gastoflow_ca.api.dto.request.CreateUserTypeRequest;
 import com.group55.gastoflow_ca.core.controllers.UserTypeController;
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.CreateUserTypeInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeOutputDTO;
 
@@ -38,7 +41,13 @@ public class UserTypeRestAdapter {
     }
 
     @GetMapping
-    public ResponseEntity<String> getAll() {
-        return ResponseEntity.ok("ok");
+    public ResponseEntity<PageOutputDTO<UserTypeOutputDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PageInputDTO pageInput = new PageInputDTO(page, size);
+        PageOutputDTO<UserTypeOutputDTO> output = userTypeController.GetAllUserType(pageInput);
+
+        return ResponseEntity.ok(output);
     }
 }
