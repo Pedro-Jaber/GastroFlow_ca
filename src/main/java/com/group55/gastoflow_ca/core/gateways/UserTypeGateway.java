@@ -1,8 +1,11 @@
 package com.group55.gastoflow_ca.core.gateways;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
@@ -34,6 +37,23 @@ public class UserTypeGateway implements IUserTypeGateway {
                 createdUserType.id(),
                 createdUserType.name(),
                 createdUserType.permissions());
+    }
+
+    @Override
+    public PageOutputDTO<UserType> findAll(PageInputDTO pageInput) {
+
+        PageOutputDTO<UserTypeDTO> page = this.dataStorageSource.findAll(pageInput);
+
+        List<UserType> content = page.content().stream()
+                .map(dto -> UserType.create(dto.id(), dto.name(), dto.permissions()))
+                .toList();
+
+        return new PageOutputDTO<>(
+                content,
+                page.page(),
+                page.size(),
+                page.totalElements(),
+                page.totalPages());
     }
 
     // TODO tranformar em Optional e passar a tratativa de erro para o gateway
