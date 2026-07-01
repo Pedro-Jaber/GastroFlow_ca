@@ -7,16 +7,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.group55.gastoflow_ca.api.dto.request.CreateUserTypeRequest;
+import com.group55.gastoflow_ca.api.dto.request.UpdateUserTypeResquest;
 import com.group55.gastoflow_ca.core.controllers.UserTypeController;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.CreateUserTypeInputDataDTO;
+import com.group55.gastoflow_ca.core.dtos.usertype.UpdateUserTypeInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeOutputDTO;
 
 import jakarta.validation.Valid;
@@ -60,4 +63,19 @@ public class UserTypeRestAdapter {
 
         return ResponseEntity.ok(output);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserTypeOutputDTO> update(
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateUserTypeResquest resquest) {
+
+        UpdateUserTypeInputDataDTO input = new UpdateUserTypeInputDataDTO(
+                resquest.name(),
+                resquest.permissions());
+
+        UserTypeOutputDTO output = userTypeController.updateUserType(id, input);
+
+        return ResponseEntity.ok(output);
+    }
+
 }

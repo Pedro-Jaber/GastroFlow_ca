@@ -66,6 +66,18 @@ public class UserTypeDataSourceImpl implements IUserTypeDataSource {
                 .map(this::toDTO);
     }
 
+    @Override
+    public UserTypeDTO updateUserType(UserTypeDTO userTypeDTOToUpdate) {
+        UserTypeJpaEntity entity = new UserTypeJpaEntity();
+        entity.setId(userTypeDTOToUpdate.id());
+        entity.setName(userTypeDTOToUpdate.name());
+        entity.setPermissions(userTypeDTOToUpdate.permissions());
+
+        UserTypeJpaEntity updated = userTypeJpaRepository.save(entity);
+
+        return toDTO(updated);
+    }
+
     private UserTypeDTO toDTO(UserTypeJpaEntity entity) {
         return new UserTypeDTO(
                 entity.getId(),
