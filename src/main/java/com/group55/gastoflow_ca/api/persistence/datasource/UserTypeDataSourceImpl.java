@@ -14,7 +14,6 @@ import com.group55.gastoflow_ca.api.persistence.repository.UserTypeJpaRepository
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
-import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserTypeDataSource;
 
 @Component
@@ -56,10 +55,9 @@ public class UserTypeDataSourceImpl implements IUserTypeDataSource {
     }
 
     @Override
-    public UserTypeDTO findById(UUID id) {
+    public Optional<UserTypeDTO> findById(UUID id) {
         return userTypeJpaRepository.findById(id)
-                .map(this::toDTO)
-                .orElseThrow(() -> new UserTypeNotFoundException("UserType with id " + id + " not found."));
+                .map(this::toDTO);
     }
 
     @Override
