@@ -13,7 +13,7 @@ public interface IUserTypeGateway {
 
     PageOutputDTO<UserType> findAll(PageInputDTO pageInput);
 
-    UserType findById(UUID id);
+    Optional<UserType> findById(UUID id);
 
     Optional<UserType> findByName(String name);
 

@@ -1,5 +1,6 @@
 package com.group55.gastoflow_ca.core.usecases;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,7 +39,7 @@ public class CreateUserUseCaseTest {
                         User.create(userId, name, emailAddress, login, password, userType));
 
         IUserTypeGateway userTypeGateway = mock(IUserTypeGateway.class);
-        when(userTypeGateway.findById(any())).thenReturn(userType);
+        when(userTypeGateway.findById(any())).thenReturn(Optional.of(userType));
 
         // Act
         User user = CreateUserUseCase.create(userGateway, userTypeGateway)

@@ -1,6 +1,7 @@
 package com.group55.gastoflow_ca.core.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
@@ -12,13 +13,18 @@ import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserTypeDataSource;
 import com.group55.gastoflow_ca.core.presenters.UserTypePresenter;
 import com.group55.gastoflow_ca.core.usecases.userType.CreateUserTypeUseCase;
 import com.group55.gastoflow_ca.core.usecases.userType.GetAllUserTypeUseCase;
+import com.group55.gastoflow_ca.core.usecases.userType.GetUserTypeByIdUseCase;
 
 public class UserTypeController {
 
     private final IUserTypeDataSource userTypeDataSource;
 
+    private final UserTypeGateway userTypeGateway;
+
     private UserTypeController(IUserTypeDataSource userTypeDataSource) {
         this.userTypeDataSource = userTypeDataSource;
+
+        this.userTypeGateway = UserTypeGateway.create(this.userTypeDataSource);
     }
 
     public static UserTypeController create(IUserTypeDataSource userTypeDataSource) {
@@ -26,7 +32,6 @@ public class UserTypeController {
     }
 
     public UserTypeOutputDTO createUserType(CreateUserTypeInputDataDTO input) {
-        UserTypeGateway userTypeGateway = UserTypeGateway.create(userTypeDataSource);
         CreateUserTypeUseCase useCase = CreateUserTypeUseCase.create(userTypeGateway);
 
         var userType = useCase.run(input);
@@ -36,7 +41,6 @@ public class UserTypeController {
     }
 
     public PageOutputDTO<UserTypeOutputDTO> GetAllUserType(PageInputDTO pageInput) {
-        UserTypeGateway userTypeGateway = UserTypeGateway.create(userTypeDataSource);
         GetAllUserTypeUseCase useCase = GetAllUserTypeUseCase.create(userTypeGateway);
 
         PageOutputDTO<UserType> page = useCase.run(pageInput);
@@ -51,6 +55,15 @@ public class UserTypeController {
                 page.size(),
                 page.totalElements(),
                 page.totalPages());
+    }
+
+    public UserTypeOutputDTO GetUserTypeById(UUID id) {
+        GetUserTypeByIdUseCase useCase = GetUserTypeByIdUseCase.create(userTypeGateway);
+
+        var userType = useCase.run(id);
+        var userTypeOutputDTO = UserTypePresenter.toOutputDTO(userType);
+
+        return userTypeOutputDTO;
     }
 
 }

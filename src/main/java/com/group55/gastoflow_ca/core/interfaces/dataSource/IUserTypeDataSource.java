@@ -13,7 +13,7 @@ public interface IUserTypeDataSource {
 
     PageOutputDTO<UserTypeDTO> findAll(PageInputDTO pageInput);
 
-    UserTypeDTO findById(UUID id);
+    Optional<UserTypeDTO> findById(UUID id);
 
     Optional<UserTypeDTO> findByName(String name);
 

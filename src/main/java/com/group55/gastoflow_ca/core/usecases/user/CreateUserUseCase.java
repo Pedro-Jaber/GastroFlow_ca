@@ -4,6 +4,7 @@ import com.group55.gastoflow_ca.core.dtos.user.CreateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.User;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.exceptions.UserAlreadyExistsException;
+import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserGateway;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
 
@@ -30,7 +31,9 @@ public class CreateUserUseCase {
                     "User with login " + createUserInputDataDTO.login() + " already exists.");
         }
 
-        final UserType userType = this.userTypeGateway.findById(createUserInputDataDTO.userTypeId());
+        final UserType userType = this.userTypeGateway.findById(createUserInputDataDTO.userTypeId())
+                .orElseThrow(() -> new UserTypeNotFoundException(
+                        "UserType with id " + createUserInputDataDTO.userTypeId() + " not found."));
 
         final User newUser = User.create(createUserInputDataDTO.name(),
                 createUserInputDataDTO.emailAddress(),

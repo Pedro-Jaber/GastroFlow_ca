@@ -8,7 +8,6 @@ import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
 import com.group55.gastoflow_ca.core.entities.UserType;
-import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserTypeDataSource;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
 
@@ -56,20 +55,10 @@ public class UserTypeGateway implements IUserTypeGateway {
                 page.totalPages());
     }
 
-    // TODO tranformar em Optional e passar a tratativa de erro para o gateway
     @Override
-    public UserType findById(UUID id) {
-        final UserTypeDTO userTypeDTO = this.dataStorageSource.findById(id);
-
-        if (userTypeDTO == null) {
-            throw new UserTypeNotFoundException("UserType with id " + id + " not found.");
-        }
-
-        return UserType.create(
-                userTypeDTO.id(),
-                userTypeDTO.name(),
-                userTypeDTO.permissions());
-
+    public Optional<UserType> findById(UUID id) {
+        return this.dataStorageSource.findById(id)
+                .map(dto -> UserType.create(dto.id(), dto.name(), dto.permissions()));
     }
 
     @Override
