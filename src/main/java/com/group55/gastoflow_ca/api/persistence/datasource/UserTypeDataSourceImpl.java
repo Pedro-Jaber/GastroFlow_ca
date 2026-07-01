@@ -78,6 +78,11 @@ public class UserTypeDataSourceImpl implements IUserTypeDataSource {
         return toDTO(updated);
     }
 
+    @Override
+    public void deleteById(UUID id) {
+        userTypeJpaRepository.deleteById(id);
+    }
+
     private UserTypeDTO toDTO(UserTypeJpaEntity entity) {
         return new UserTypeDTO(
                 entity.getId(),
