@@ -67,4 +67,19 @@ public class UserTypeGateway implements IUserTypeGateway {
                 .map(dto -> UserType.create(dto.id(), dto.name(), dto.permissions()));
     }
 
+    @Override
+    public UserType updateUserType(UserType existingUserType) {
+        final UserTypeDTO userTypeDTOToUpdate = new UserTypeDTO(
+                existingUserType.getId(),
+                existingUserType.getName(),
+                existingUserType.getPermissions());
+
+        final UserTypeDTO updatedUserTypeDTO = this.dataStorageSource.updateUserType(userTypeDTOToUpdate);
+
+        return UserType.create(
+                updatedUserTypeDTO.id(),
+                updatedUserTypeDTO.name(),
+                updatedUserTypeDTO.permissions());
+    }
+
 }

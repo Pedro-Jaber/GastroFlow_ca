@@ -17,4 +17,6 @@ public interface IUserTypeGateway {
 
     Optional<UserType> findByName(String name);
 
+    UserType updateUserType(UserType existingUserType);
+
 }

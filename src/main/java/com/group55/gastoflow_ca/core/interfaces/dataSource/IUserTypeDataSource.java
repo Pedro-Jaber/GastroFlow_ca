@@ -17,4 +17,6 @@ public interface IUserTypeDataSource {
 
     Optional<UserTypeDTO> findByName(String name);
 
+    UserTypeDTO updateUserType(UserTypeDTO userTypeDTOToUpdate);
+
 }
