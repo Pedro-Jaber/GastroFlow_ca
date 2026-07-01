@@ -19,4 +19,6 @@ public interface IUserTypeGateway {
 
     UserType updateUserType(UserType existingUserType);
 
+    void deleteById(UUID id);
+
 }

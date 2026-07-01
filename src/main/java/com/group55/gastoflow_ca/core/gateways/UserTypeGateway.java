@@ -82,4 +82,9 @@ public class UserTypeGateway implements IUserTypeGateway {
                 updatedUserTypeDTO.permissions());
     }
 
+    @Override
+    public void deleteById(UUID id) {
+        this.dataStorageSource.deleteById(id);
+    }
+
 }

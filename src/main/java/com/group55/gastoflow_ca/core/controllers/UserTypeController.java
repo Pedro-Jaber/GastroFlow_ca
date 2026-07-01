@@ -13,6 +13,7 @@ import com.group55.gastoflow_ca.core.gateways.UserTypeGateway;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserTypeDataSource;
 import com.group55.gastoflow_ca.core.presenters.UserTypePresenter;
 import com.group55.gastoflow_ca.core.usecases.userType.CreateUserTypeUseCase;
+import com.group55.gastoflow_ca.core.usecases.userType.DeleteUserTypeUseCase;
 import com.group55.gastoflow_ca.core.usecases.userType.GetAllUserTypeUseCase;
 import com.group55.gastoflow_ca.core.usecases.userType.GetUserTypeByIdUseCase;
 import com.group55.gastoflow_ca.core.usecases.userType.UpdateUserTypeUseCase;
@@ -75,6 +76,12 @@ public class UserTypeController {
         var userTypeOutputDTO = UserTypePresenter.toOutputDTO(userType);
 
         return userTypeOutputDTO;
+    }
+
+    public void deleteUserType(UUID id) {
+        DeleteUserTypeUseCase useCase = DeleteUserTypeUseCase.create(userTypeGateway);
+
+        useCase.run(id);
     }
 
 }
