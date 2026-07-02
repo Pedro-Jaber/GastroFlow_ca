@@ -24,18 +24,18 @@ public class CreateUserUseCase {
 
     public User run(CreateUserInputDataDTO createUserInputDataDTO) {
 
-        final User existentUser = this.userGateway.findByLogin(createUserInputDataDTO.login());
-
-        if (existentUser != null) {
-            throw new UserAlreadyExistsException(
-                    "User with login " + createUserInputDataDTO.login() + " already exists.");
-        }
+        this.userGateway.findByLogin(createUserInputDataDTO.login())
+                .ifPresent(user -> {
+                    throw new UserAlreadyExistsException(
+                            "User with login " + createUserInputDataDTO.login() + " already exists.");
+                });
 
         final UserType userType = this.userTypeGateway.findById(createUserInputDataDTO.userTypeId())
                 .orElseThrow(() -> new UserTypeNotFoundException(
                         "UserType with id " + createUserInputDataDTO.userTypeId() + " not found."));
 
-        final User newUser = User.create(createUserInputDataDTO.name(),
+        final User newUser = User.create(
+                createUserInputDataDTO.name(),
                 createUserInputDataDTO.emailAddress(),
                 createUserInputDataDTO.login(),
                 createUserInputDataDTO.password(),

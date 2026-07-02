@@ -11,25 +11,26 @@ import com.group55.gastoflow_ca.core.usecases.user.CreateUserUseCase;
 
 public class UserController {
 
-    private final IUserDataSource userDataStorageSource;
-    private final IUserTypeDataSource userTypeDataStorageSource;
+    private final IUserDataSource userDataSource;
+    private final IUserTypeDataSource userTypeDataSource;
 
-    private UserController(IUserDataSource dataSource, IUserTypeDataSource userTypeDataStorageSource) {
-        this.userDataStorageSource = dataSource;
-        this.userTypeDataStorageSource = userTypeDataStorageSource;
+    private UserController(IUserDataSource userDataSource, IUserTypeDataSource userTypeDataSource) {
+        this.userDataSource = userDataSource;
+        this.userTypeDataSource = userTypeDataSource;
     }
 
-    public static UserController create(IUserDataSource dataSource, IUserTypeDataSource userTypeDataStorageSource) {
-        return new UserController(dataSource, userTypeDataStorageSource);
+    public static UserController create(IUserDataSource userDataSource, IUserTypeDataSource userTypeDataSource) {
+        return new UserController(userDataSource, userTypeDataSource);
     }
 
     public UserOutputDTO createUser(CreateUserInputDataDTO newUserDTO) {
-        UserGateway userGateway = UserGateway.create(this.userDataStorageSource);
-        UserTypeGateway userTypeGateway = UserTypeGateway.create(this.userTypeDataStorageSource);
+        UserGateway userGateway = UserGateway.create(this.userDataSource);
+        UserTypeGateway userTypeGateway = UserTypeGateway.create(this.userTypeDataSource);
         CreateUserUseCase useCase = CreateUserUseCase.create(userGateway, userTypeGateway);
 
         var user = useCase.run(newUserDTO);
         var userOutDTO = UserPresenter.toOutputDTO(user);
         return userOutDTO;
     }
+
 }
