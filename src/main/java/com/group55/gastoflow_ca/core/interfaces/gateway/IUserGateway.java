@@ -17,4 +17,6 @@ public interface IUserGateway {
 
     Optional<User> findByLogin(String login);
 
+    User updateUser(User existingUser);
+
 }

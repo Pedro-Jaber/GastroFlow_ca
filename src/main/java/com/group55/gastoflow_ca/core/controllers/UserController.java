@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.user.CreateUserInputDataDTO;
+import com.group55.gastoflow_ca.core.dtos.user.UpdateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.user.UserOutputDTO;
 import com.group55.gastoflow_ca.core.entities.User;
 import com.group55.gastoflow_ca.core.gateways.UserGateway;
@@ -16,6 +17,7 @@ import com.group55.gastoflow_ca.core.presenters.UserPresenter;
 import com.group55.gastoflow_ca.core.usecases.user.CreateUserUseCase;
 import com.group55.gastoflow_ca.core.usecases.user.GetAllUserUseCase;
 import com.group55.gastoflow_ca.core.usecases.user.GetUserByIdUseCase;
+import com.group55.gastoflow_ca.core.usecases.user.UpdateUserUseCase;
 
 public class UserController {
 
@@ -72,4 +74,13 @@ public class UserController {
         return userOutputDTO;
     }
 
+    public UserOutputDTO updateUser(UUID id, UpdateUserInputDataDTO input) {
+        UserTypeGateway userTypeGateway = UserTypeGateway.create(this.userTypeDataSource);
+        UpdateUserUseCase useCase = UpdateUserUseCase.create(this.userGateway, userTypeGateway);
+
+        var user = useCase.run(id, input);
+
+        var userOutDTO = UserPresenter.toOutputDTO(user);
+        return userOutDTO;
+    }
 }

@@ -17,4 +17,6 @@ public interface IUserDataSource {
 
     Optional<UserDTO> findByLogin(String login);
 
+    UserDTO updateUser(UserDTO userDTO);
+
 }

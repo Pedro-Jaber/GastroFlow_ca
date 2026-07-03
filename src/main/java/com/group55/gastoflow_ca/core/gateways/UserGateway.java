@@ -64,6 +64,13 @@ public class UserGateway implements IUserGateway {
                 .map(dto -> toEntity(dto));
     }
 
+    @Override
+    public User updateUser(User existingUser) {
+        final UserDTO userDTO = toDTO(existingUser);
+        final UserDTO updatedUser = this.dataStorageSource.updateUser(userDTO);
+        return toEntity(updatedUser);
+    }
+
     public User toEntity(UserDTO userDTO) {
         return User.create(
                 userDTO.id(),
