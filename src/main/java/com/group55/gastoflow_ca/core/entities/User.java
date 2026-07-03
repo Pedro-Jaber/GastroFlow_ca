@@ -50,7 +50,9 @@ public class User {
             String emailAddress,
             String login,
             String password,
-            UserType userType) {
+            UserType userType,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
 
         User user = new User();
 
@@ -60,8 +62,8 @@ public class User {
         user.login = login;
         user.password = password;
         user.userType = userType;
-        user.createdAt = LocalDateTime.now();
-        user.updatedAt = LocalDateTime.now();
+        user.createdAt = createdAt;
+        user.updatedAt = updatedAt;
 
         return user;
     }

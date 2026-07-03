@@ -1,5 +1,6 @@
 package com.group55.gastoflow_ca.core.usecases;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,12 +32,14 @@ public class CreateUserUseCaseTest {
         String login = "jdoe";
         String password = "password123";
         UserType userType = UserType.create(UUID.randomUUID(), "Admin", null);
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
 
         IUserGateway userGateway = mock(IUserGateway.class);
         when(userGateway.findByLogin(anyString())).thenReturn(null);
         when(userGateway.saveNewUser(any()))
                 .thenReturn(
-                        User.create(userId, name, emailAddress, login, password, userType));
+                        User.create(userId, name, emailAddress, login, password, userType, createdAt, updatedAt));
 
         IUserTypeGateway userTypeGateway = mock(IUserTypeGateway.class);
         when(userTypeGateway.findById(any())).thenReturn(Optional.of(userType));

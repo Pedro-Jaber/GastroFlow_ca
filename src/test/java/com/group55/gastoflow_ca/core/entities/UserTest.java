@@ -1,5 +1,6 @@
 package com.group55.gastoflow_ca.core.entities;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,9 +43,11 @@ public class UserTest {
         String login = "jdoe";
         String password = "password123";
         UserType userType = UserType.create(UUID.randomUUID(), "Admin", null);
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime updatedAt = LocalDateTime.now();
 
         // Act
-        User user = User.create(id, name, emailAddress, login, password, userType);
+        User user = User.create(id, name, emailAddress, login, password, userType, createdAt, updatedAt);
 
         // Assert
         assert user != null;

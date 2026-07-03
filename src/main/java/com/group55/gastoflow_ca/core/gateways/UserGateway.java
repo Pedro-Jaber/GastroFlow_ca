@@ -1,7 +1,10 @@
 package com.group55.gastoflow_ca.core.gateways;
 
+import java.util.List;
 import java.util.Optional;
 
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.user.UserDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
 import com.group55.gastoflow_ca.core.entities.User;
@@ -47,7 +50,36 @@ public class UserGateway implements IUserGateway {
                 UserType.create(
                         createdUser.userTypeDTO().id(),
                         createdUser.userTypeDTO().name(),
-                        createdUser.userTypeDTO().permissions()));
+                        createdUser.userTypeDTO().permissions()),
+                createdUser.createdAt(),
+                createdUser.updatedAt());
+    }
+
+    @Override
+    public PageOutputDTO<User> findAll(PageInputDTO pageInput) {
+
+        PageOutputDTO<UserDTO> page = this.dataStorageSource.findAll(pageInput);
+
+        List<User> content = page.content().stream()
+                .map(dto -> User.create(
+                        dto.id(),
+                        dto.name(),
+                        dto.emailAddress(),
+                        dto.login(),
+                        dto.password(),
+                        UserType.create(
+                                dto.userTypeDTO().name(),
+                                dto.userTypeDTO().permissions()),
+                        dto.createdAt(),
+                        dto.updatedAt()))
+                .toList();
+
+        return new PageOutputDTO<>(
+                content,
+                page.page(),
+                page.size(),
+                page.totalElements(),
+                page.totalPages());
     }
 
     @Override
@@ -62,7 +94,9 @@ public class UserGateway implements IUserGateway {
                         UserType.create(
                                 dto.userTypeDTO().id(),
                                 dto.userTypeDTO().name(),
-                                dto.userTypeDTO().permissions())));
+                                dto.userTypeDTO().permissions()),
+                        dto.createdAt(),
+                        dto.updatedAt()));
     }
 
 }
