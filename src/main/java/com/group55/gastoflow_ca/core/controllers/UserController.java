@@ -15,6 +15,7 @@ import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserDataSource;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserTypeDataSource;
 import com.group55.gastoflow_ca.core.presenters.UserPresenter;
 import com.group55.gastoflow_ca.core.usecases.user.CreateUserUseCase;
+import com.group55.gastoflow_ca.core.usecases.user.DeleteUserUseCase;
 import com.group55.gastoflow_ca.core.usecases.user.GetAllUserUseCase;
 import com.group55.gastoflow_ca.core.usecases.user.GetUserByIdUseCase;
 import com.group55.gastoflow_ca.core.usecases.user.UpdateUserUseCase;
@@ -82,5 +83,11 @@ public class UserController {
 
         var userOutDTO = UserPresenter.toOutputDTO(user);
         return userOutDTO;
+    }
+
+    public void deleteUser(UUID id) {
+        DeleteUserUseCase useCase = DeleteUserUseCase.create(userGateway);
+
+        useCase.run(id);
     }
 }

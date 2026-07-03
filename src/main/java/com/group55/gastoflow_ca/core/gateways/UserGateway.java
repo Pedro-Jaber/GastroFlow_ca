@@ -71,6 +71,11 @@ public class UserGateway implements IUserGateway {
         return toEntity(updatedUser);
     }
 
+    @Override
+    public void deleteById(UUID id) {
+        this.dataStorageSource.deleteById(id);
+    }
+
     public User toEntity(UserDTO userDTO) {
         return User.create(
                 userDTO.id(),

@@ -19,4 +19,6 @@ public interface IUserDataSource {
 
     UserDTO updateUser(UserDTO userDTO);
 
+    void deleteById(UUID id);
+
 }

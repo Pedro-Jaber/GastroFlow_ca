@@ -19,4 +19,6 @@ public interface IUserGateway {
 
     User updateUser(User existingUser);
 
+    void deleteById(UUID id);
+
 }
