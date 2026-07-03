@@ -2,6 +2,7 @@ package com.group55.gastoflow_ca.api.persistence.datasource;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -54,6 +55,11 @@ public class UserDataSourceImpl implements IUserDataSource {
     }
 
     @Override
+    public Optional<UserDTO> findById(UUID id) {
+        return userJpaRepository.findById(id).map(this::toDTO);
+    }
+
+    @Override
     public Optional<UserDTO> findByLogin(String login) {
         return userJpaRepository.findByLogin(login).map(this::toDTO);
     }
@@ -87,4 +93,5 @@ public class UserDataSourceImpl implements IUserDataSource {
                 entity.getCreatedAt(),
                 entity.getUpdatedAt());
     }
+
 }
