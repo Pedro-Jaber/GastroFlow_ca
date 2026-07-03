@@ -2,6 +2,7 @@ package com.group55.gastoflow_ca.core.gateways;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
@@ -26,33 +27,11 @@ public class UserGateway implements IUserGateway {
 
     @Override
     public User saveNewUser(User user) {
-        final UserDTO newUserDTO = new UserDTO(
-                user.getId(),
-                user.getName(),
-                user.getEmailAddress(),
-                user.getLogin(),
-                user.getPassword(),
-                new UserTypeDTO(
-                        user.getUserType().getId(),
-                        user.getUserType().getName(),
-                        user.getUserType().getPermissions()),
-                user.getCreatedAt(),
-                user.getUpdatedAt());
+        final UserDTO newUserDTO = toDTO(user);
 
         final UserDTO createdUser = this.dataStorageSource.saveNewUser(newUserDTO);
 
-        return User.create(
-                createdUser.id(),
-                createdUser.name(),
-                createdUser.emailAddress(),
-                createdUser.login(),
-                createdUser.password(),
-                UserType.create(
-                        createdUser.userTypeDTO().id(),
-                        createdUser.userTypeDTO().name(),
-                        createdUser.userTypeDTO().permissions()),
-                createdUser.createdAt(),
-                createdUser.updatedAt());
+        return toEntity(createdUser);
     }
 
     @Override
@@ -61,17 +40,7 @@ public class UserGateway implements IUserGateway {
         PageOutputDTO<UserDTO> page = this.dataStorageSource.findAll(pageInput);
 
         List<User> content = page.content().stream()
-                .map(dto -> User.create(
-                        dto.id(),
-                        dto.name(),
-                        dto.emailAddress(),
-                        dto.login(),
-                        dto.password(),
-                        UserType.create(
-                                dto.userTypeDTO().name(),
-                                dto.userTypeDTO().permissions()),
-                        dto.createdAt(),
-                        dto.updatedAt()))
+                .map(dto -> toEntity(dto))
                 .toList();
 
         return new PageOutputDTO<>(
@@ -83,20 +52,45 @@ public class UserGateway implements IUserGateway {
     }
 
     @Override
-    public Optional<User> findByLogin(String login) {
-        return this.dataStorageSource.findByLogin(login)
-                .map(dto -> User.create(
-                        dto.id(),
-                        dto.name(),
-                        dto.emailAddress(),
-                        dto.login(),
-                        dto.password(),
-                        UserType.create(
-                                dto.userTypeDTO().id(),
-                                dto.userTypeDTO().name(),
-                                dto.userTypeDTO().permissions()),
-                        dto.createdAt(),
-                        dto.updatedAt()));
+    public Optional<User> findById(UUID id) {
+        return this.dataStorageSource.findById(id)
+                .map(dto -> toEntity(dto));
+
     }
 
+    @Override
+    public Optional<User> findByLogin(String login) {
+        return this.dataStorageSource.findByLogin(login)
+                .map(dto -> toEntity(dto));
+    }
+
+    public User toEntity(UserDTO userDTO) {
+        return User.create(
+                userDTO.id(),
+                userDTO.name(),
+                userDTO.emailAddress(),
+                userDTO.login(),
+                userDTO.password(),
+                UserType.create(
+                        userDTO.userTypeDTO().id(),
+                        userDTO.userTypeDTO().name(),
+                        userDTO.userTypeDTO().permissions()),
+                userDTO.createdAt(),
+                userDTO.updatedAt());
+    }
+
+    public UserDTO toDTO(User user) {
+        return new UserDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmailAddress(),
+                user.getLogin(),
+                user.getPassword(),
+                new UserTypeDTO(
+                        user.getUserType().getId(),
+                        user.getUserType().getName(),
+                        user.getUserType().getPermissions()),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
+    }
 }

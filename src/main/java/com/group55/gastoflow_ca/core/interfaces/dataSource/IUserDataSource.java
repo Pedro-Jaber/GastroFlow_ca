@@ -1,6 +1,7 @@
 package com.group55.gastoflow_ca.core.interfaces.dataSource;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
@@ -12,5 +13,8 @@ public interface IUserDataSource {
 
     PageOutputDTO<UserDTO> findAll(PageInputDTO pageInput);
 
+    Optional<UserDTO> findById(UUID id);
+
     Optional<UserDTO> findByLogin(String login);
+
 }

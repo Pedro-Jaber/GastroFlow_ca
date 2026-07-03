@@ -1,6 +1,7 @@
 package com.group55.gastoflow_ca.core.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
@@ -14,6 +15,7 @@ import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserTypeDataSource;
 import com.group55.gastoflow_ca.core.presenters.UserPresenter;
 import com.group55.gastoflow_ca.core.usecases.user.CreateUserUseCase;
 import com.group55.gastoflow_ca.core.usecases.user.GetAllUserUseCase;
+import com.group55.gastoflow_ca.core.usecases.user.GetUserByIdUseCase;
 
 public class UserController {
 
@@ -59,6 +61,15 @@ public class UserController {
                 page.size(),
                 page.totalElements(),
                 page.totalPages());
+    }
+
+    public UserOutputDTO getUserById(UUID id) {
+        GetUserByIdUseCase useCase = GetUserByIdUseCase.create(userGateway);
+
+        User user = useCase.run(id);
+
+        var userOutputDTO = UserPresenter.toOutputDTO(user);
+        return userOutputDTO;
     }
 
 }
