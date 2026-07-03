@@ -2,13 +2,17 @@ package com.group55.gastoflow_ca.api.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.group55.gastoflow_ca.api.dto.request.CreateUserRequest;
 import com.group55.gastoflow_ca.core.controllers.UserController;
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.user.CreateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.user.UserOutputDTO;
 
@@ -39,4 +43,14 @@ public class UserRestAdapter {
         return ResponseEntity.status(HttpStatus.CREATED).body(output);
     }
 
+    @GetMapping
+    public ResponseEntity<PageOutputDTO<UserOutputDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PageInputDTO pageInput = new PageInputDTO(page, size);
+        PageOutputDTO<UserOutputDTO> output = userController.getAllUser(pageInput);
+
+        return ResponseEntity.ok(output);
+    }
 }

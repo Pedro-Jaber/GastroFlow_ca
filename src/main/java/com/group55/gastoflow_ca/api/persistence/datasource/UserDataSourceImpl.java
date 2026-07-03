@@ -1,12 +1,18 @@
 package com.group55.gastoflow_ca.api.persistence.datasource;
 
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.group55.gastoflow_ca.api.persistence.entity.UserJpaEntity;
 import com.group55.gastoflow_ca.api.persistence.entity.UserTypeJpaEntity;
 import com.group55.gastoflow_ca.api.persistence.repository.UserJpaRepository;
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.user.UserDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserDataSource;
@@ -27,6 +33,24 @@ public class UserDataSourceImpl implements IUserDataSource {
         UserJpaEntity saved = userJpaRepository.save(entity);
 
         return toDTO(saved);
+    }
+
+    @Override
+    public PageOutputDTO<UserDTO> findAll(PageInputDTO pageInput) {
+
+        Pageable pageable = PageRequest.of(pageInput.page(), pageInput.size());
+        Page<UserJpaEntity> page = userJpaRepository.findAll(pageable);
+
+        List<UserDTO> content = page.getContent().stream()
+                .map(this::toDTO)
+                .toList();
+
+        return new PageOutputDTO<>(
+                content,
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages());
     }
 
     @Override
