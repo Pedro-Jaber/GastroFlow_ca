@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateUserTypeRequest(
-                @NotBlank(message = "Name is required") String name,
-                @NotNull(message = "Permissions are required") Set<Permission> permissions) {
+        @NotBlank(message = "Name is required") String name,
+        @NotNull(message = "Permissions are required") Set<Permission> permissions) {
 
 }

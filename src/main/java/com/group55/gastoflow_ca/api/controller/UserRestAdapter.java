@@ -7,16 +7,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.group55.gastoflow_ca.api.dto.request.CreateUserRequest;
+import com.group55.gastoflow_ca.api.dto.request.user.CreateUserRequest;
+import com.group55.gastoflow_ca.api.dto.request.user.UpdateUserRequest;
 import com.group55.gastoflow_ca.core.controllers.UserController;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.user.CreateUserInputDataDTO;
+import com.group55.gastoflow_ca.core.dtos.user.UpdateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.user.UserOutputDTO;
 
 import jakarta.validation.Valid;
@@ -59,11 +62,27 @@ public class UserRestAdapter {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserOutputDTO> getById(
-        @PathVariable UUID id) {
-        
+            @PathVariable UUID id) {
+
         UserOutputDTO output = userController.getUserById(id);
 
         return ResponseEntity.ok(output);
 
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserOutputDTO> update(
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateUserRequest request) {
+
+        UpdateUserInputDataDTO input = new UpdateUserInputDataDTO(
+                request.name(),
+                request.emailAddress(),
+                request.login(),
+                request.userTypeId());
+
+        UserOutputDTO output = userController.updateUser(id, input);
+
+        return ResponseEntity.ok(output);
     }
 }

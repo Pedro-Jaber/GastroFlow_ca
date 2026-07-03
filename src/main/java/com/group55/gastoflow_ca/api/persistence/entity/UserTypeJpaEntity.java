@@ -15,6 +15,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class UserTypeJpaEntity {
     private UUID id;
 
     @Column(nullable = false, unique = true)
+    @NotBlank(message = "Name is required")
     private String name;
 
     @ElementCollection(fetch = FetchType.EAGER)

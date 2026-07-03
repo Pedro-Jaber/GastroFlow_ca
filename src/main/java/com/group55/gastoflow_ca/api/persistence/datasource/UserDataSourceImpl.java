@@ -64,6 +64,13 @@ public class UserDataSourceImpl implements IUserDataSource {
         return userJpaRepository.findByLogin(login).map(this::toDTO);
     }
 
+    @Override
+    public UserDTO updateUser(UserDTO userDTO) {
+        UserJpaEntity entity = toEntity(userDTO);
+        UserJpaEntity updated = userJpaRepository.save(entity);
+        return toDTO(updated);
+    }
+
     private UserJpaEntity toEntity(UserDTO dto) {
         return new UserJpaEntity(
                 dto.id(),

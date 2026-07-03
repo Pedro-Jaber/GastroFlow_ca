@@ -1,4 +1,4 @@
-package com.group55.gastoflow_ca.api.dto.request;
+package com.group55.gastoflow_ca.api.dto.request.user;
 
 import java.util.UUID;
 
