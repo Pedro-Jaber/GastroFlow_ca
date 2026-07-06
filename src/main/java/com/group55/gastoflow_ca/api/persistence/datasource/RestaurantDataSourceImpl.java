@@ -71,6 +71,11 @@ public class RestaurantDataSourceImpl implements IRestaurantDataSource {
         return toDTO(updated);
     }
 
+    @Override
+    public void deleteById(UUID id) {
+        this.restaurantJpaRepository.deleteById(id);
+    }
+
     private RestaurantJpaEntity toEntity(RestaurantDTO dto) {
         return new RestaurantJpaEntity(
                 dto.id(),

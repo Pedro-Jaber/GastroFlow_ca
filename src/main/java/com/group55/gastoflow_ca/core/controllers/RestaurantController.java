@@ -15,6 +15,7 @@ import com.group55.gastoflow_ca.core.interfaces.dataSource.IRestaurantDataSource
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserDataSource;
 import com.group55.gastoflow_ca.core.presenters.RestaurantPresenter;
 import com.group55.gastoflow_ca.core.usecases.restaurant.CreateRestaurantUseCase;
+import com.group55.gastoflow_ca.core.usecases.restaurant.DeleteRestaurantUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.GatAllRestaurantsUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.GetRestaurantByIdUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.UpdateRestaurantUseCase;
@@ -87,6 +88,13 @@ public class RestaurantController {
 
         var restaurantOutDTO = RestaurantPresenter.toOutputDTO(restaurant);
         return restaurantOutDTO;
+    }
+
+    public void deleteRestaurant(UUID id) {
+
+        DeleteRestaurantUseCase useCase = DeleteRestaurantUseCase.create(this.restaurantGateway);
+
+        useCase.run(id);
     }
 
 }

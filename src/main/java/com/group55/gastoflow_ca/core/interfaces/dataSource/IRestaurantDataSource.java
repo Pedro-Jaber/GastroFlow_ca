@@ -19,4 +19,6 @@ public interface IRestaurantDataSource {
 
     RestaurantDTO updateRestaurant(RestaurantDTO existingRestaurantDTO);
 
+    void deleteById(UUID id);
+
 }

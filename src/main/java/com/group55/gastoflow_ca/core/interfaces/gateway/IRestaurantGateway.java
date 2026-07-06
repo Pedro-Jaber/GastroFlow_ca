@@ -18,4 +18,6 @@ public interface IRestaurantGateway {
     Optional<Restaurant> findByName(String name);
 
     Restaurant updateRestaurant(Restaurant existingRestaurant);
+
+    void deleteById(UUID id);
 }

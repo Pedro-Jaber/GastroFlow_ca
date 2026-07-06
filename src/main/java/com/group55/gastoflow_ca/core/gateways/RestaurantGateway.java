@@ -68,6 +68,11 @@ public class RestaurantGateway implements IRestaurantGateway {
         return toEntity(updatedRestaurantDTO);
     }
 
+    @Override
+    public void deleteById(UUID id) {
+        this.dataSource.deleteById(id);
+    }
+
     private Restaurant toEntity(RestaurantDTO restaurantDTO) {
         return Restaurant.create(
                 restaurantDTO.id(),
