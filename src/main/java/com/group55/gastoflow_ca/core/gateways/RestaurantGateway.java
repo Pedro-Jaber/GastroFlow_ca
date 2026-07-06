@@ -2,6 +2,7 @@ package com.group55.gastoflow_ca.core.gateways;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.restaurant.RestaurantDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
@@ -48,6 +49,11 @@ public class RestaurantGateway implements IRestaurantGateway {
                 page.size(),
                 page.totalElements(),
                 page.totalPages());
+    }
+
+    @Override
+    public Optional<Restaurant> findById(UUID id) {
+        return this.dataSource.findById(id).map(this::toEntity);
     }
 
     @Override

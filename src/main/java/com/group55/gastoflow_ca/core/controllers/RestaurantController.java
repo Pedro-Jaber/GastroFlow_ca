@@ -1,6 +1,7 @@
 package com.group55.gastoflow_ca.core.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.restaurant.CreateRestaurantInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.restaurant.RestaurantOutputDTO;
@@ -14,6 +15,7 @@ import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserDataSource;
 import com.group55.gastoflow_ca.core.presenters.RestaurantPresenter;
 import com.group55.gastoflow_ca.core.usecases.restaurant.CreateRestaurantUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.GatAllRestaurantsUseCase;
+import com.group55.gastoflow_ca.core.usecases.restaurant.GetRestaurantByIdUseCase;
 
 public class RestaurantController {
 
@@ -63,6 +65,16 @@ public class RestaurantController {
                 page.size(),
                 page.totalElements(),
                 page.totalPages());
+    }
+
+    public RestaurantOutputDTO getRestaurantById(UUID id) {
+
+        GetRestaurantByIdUseCase useCase = GetRestaurantByIdUseCase.create(this.restaurantGateway);
+
+        Restaurant restaurant = useCase.run(id);
+
+        var restaurantOutDTO = RestaurantPresenter.toOutputDTO(restaurant);
+        return restaurantOutDTO;
     }
 
 }

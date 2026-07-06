@@ -2,6 +2,7 @@ package com.group55.gastoflow_ca.api.persistence.datasource;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -54,6 +55,11 @@ public class RestaurantDataSourceImpl implements IRestaurantDataSource {
                 page.getSize(),
                 page.getTotalElements(),
                 page.getTotalPages());
+    }
+
+    @Override
+    public Optional<RestaurantDTO> findById(UUID id) {
+        return restaurantJpaRepository.findById(id).map(this::toDTO);
     }
 
     @Override

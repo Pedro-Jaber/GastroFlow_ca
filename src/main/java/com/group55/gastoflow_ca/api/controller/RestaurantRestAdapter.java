@@ -1,8 +1,11 @@
 package com.group55.gastoflow_ca.api.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +56,13 @@ public class RestaurantRestAdapter {
         PageInputDTO pageInput = new PageInputDTO(page, size);
 
         PageOutputDTO<RestaurantOutputDTO> output = restaurantController.getAllRestaurants(pageInput);
+
+        return ResponseEntity.ok(output);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<RestaurantOutputDTO> getById(@PathVariable UUID id) {
+        RestaurantOutputDTO output = restaurantController.getRestaurantById(id);
 
         return ResponseEntity.ok(output);
     }
