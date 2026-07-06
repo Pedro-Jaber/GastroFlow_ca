@@ -17,4 +17,6 @@ public interface IRestaurantDataSource {
 
     Optional<RestaurantDTO> findByName(String name);
 
+    RestaurantDTO updateRestaurant(RestaurantDTO existingRestaurantDTO);
+
 }

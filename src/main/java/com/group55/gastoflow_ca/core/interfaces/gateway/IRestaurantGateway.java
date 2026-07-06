@@ -16,4 +16,6 @@ public interface IRestaurantGateway {
     Optional<Restaurant> findById(UUID id);
 
     Optional<Restaurant> findByName(String name);
+
+    Restaurant updateRestaurant(Restaurant existingRestaurant);
 }

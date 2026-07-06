@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.restaurant.CreateRestaurantInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.restaurant.RestaurantOutputDTO;
+import com.group55.gastoflow_ca.core.dtos.restaurant.UpdateRestaurantInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
@@ -16,6 +17,7 @@ import com.group55.gastoflow_ca.core.presenters.RestaurantPresenter;
 import com.group55.gastoflow_ca.core.usecases.restaurant.CreateRestaurantUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.GatAllRestaurantsUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.GetRestaurantByIdUseCase;
+import com.group55.gastoflow_ca.core.usecases.restaurant.UpdateRestaurantUseCase;
 
 public class RestaurantController {
 
@@ -72,6 +74,16 @@ public class RestaurantController {
         GetRestaurantByIdUseCase useCase = GetRestaurantByIdUseCase.create(this.restaurantGateway);
 
         Restaurant restaurant = useCase.run(id);
+
+        var restaurantOutDTO = RestaurantPresenter.toOutputDTO(restaurant);
+        return restaurantOutDTO;
+    }
+
+    public RestaurantOutputDTO updateRestaurant(UUID id, UpdateRestaurantInputDataDTO input) {
+        UserGateway userGateway = UserGateway.create(userDataSource);
+        UpdateRestaurantUseCase useCase = UpdateRestaurantUseCase.create(this.restaurantGateway, userGateway);
+
+        Restaurant restaurant = useCase.run(id, input);
 
         var restaurantOutDTO = RestaurantPresenter.toOutputDTO(restaurant);
         return restaurantOutDTO;

@@ -61,6 +61,13 @@ public class RestaurantGateway implements IRestaurantGateway {
         return this.dataSource.findByName(name).map(this::toEntity);
     }
 
+    @Override
+    public Restaurant updateRestaurant(Restaurant existingRestaurant) {
+        final RestaurantDTO existingRestaurantDTO = toDTO(existingRestaurant);
+        final RestaurantDTO updatedRestaurantDTO = this.dataSource.updateRestaurant(existingRestaurantDTO);
+        return toEntity(updatedRestaurantDTO);
+    }
+
     private Restaurant toEntity(RestaurantDTO restaurantDTO) {
         return Restaurant.create(
                 restaurantDTO.id(),

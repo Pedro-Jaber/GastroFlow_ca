@@ -32,9 +32,6 @@ public class RestaurantDataSourceImpl implements IRestaurantDataSource {
     @Override
     public RestaurantDTO saveNewRestaurant(RestaurantDTO newRestaurantDTO) {
         RestaurantJpaEntity entity = toEntity(newRestaurantDTO);
-
-        System.out.println("entity:" + entity);
-
         RestaurantJpaEntity saved = restaurantJpaRepository.save(entity);
         return toDTO(saved);
     }
@@ -65,6 +62,13 @@ public class RestaurantDataSourceImpl implements IRestaurantDataSource {
     @Override
     public Optional<RestaurantDTO> findByName(String name) {
         return restaurantJpaRepository.findByName(name).map(this::toDTO);
+    }
+
+    @Override
+    public RestaurantDTO updateRestaurant(RestaurantDTO existingRestaurantDTO) {
+        RestaurantJpaEntity entity = toEntity(existingRestaurantDTO);
+        RestaurantJpaEntity updated = this.restaurantJpaRepository.save(entity);
+        return toDTO(updated);
     }
 
     private RestaurantJpaEntity toEntity(RestaurantDTO dto) {
