@@ -1,8 +1,11 @@
 package com.group55.gastoflow_ca.core.gateways;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.group55.gastoflow_ca.core.dtos.restaurant.RestaurantDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.user.UserDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
@@ -28,6 +31,23 @@ public class RestaurantGateway implements IRestaurantGateway {
         final RestaurantDTO newRestaurantDTO = toDTO(newRestaurant);
         final RestaurantDTO savedRestaurantDTO = this.dataSource.saveNewRestaurant(newRestaurantDTO);
         return toEntity(savedRestaurantDTO);
+    }
+
+    @Override
+    public PageOutputDTO<Restaurant> findAll(PageInputDTO pageInput) {
+
+        PageOutputDTO<RestaurantDTO> page = this.dataSource.findAll(pageInput);
+
+        List<Restaurant> content = page.content().stream()
+                .map(this::toEntity)
+                .toList();
+
+        return new PageOutputDTO<>(
+                content,
+                page.page(),
+                page.size(),
+                page.totalElements(),
+                page.totalPages());
     }
 
     @Override

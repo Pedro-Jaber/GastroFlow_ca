@@ -2,6 +2,8 @@ package com.group55.gastoflow_ca.core.interfaces.gateway;
 
 import java.util.Optional;
 
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
 
 public interface IRestaurantGateway {
@@ -9,5 +11,7 @@ public interface IRestaurantGateway {
     Restaurant saveNewRestaurant(Restaurant newRestaurant);
 
     Optional<Restaurant> findByName(String name);
+
+    PageOutputDTO<Restaurant> findAll(PageInputDTO pageInput);
 
 }
