@@ -50,7 +50,7 @@ public class UpdateRestaurantUseCase {
             final User owner = this.userGateway.findById(input.ownerId())
                     .orElseThrow(() -> new UserNotFoundException("User with id " + input.ownerId() + " not found."));
 
-            existingRestaurant.setOwner(owner);
+            existingRestaurant.setOwnerId(owner.getId());
         }
 
         existingRestaurant.setUpdatedAt(LocalDateTime.now());

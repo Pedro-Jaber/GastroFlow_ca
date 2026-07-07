@@ -44,7 +44,7 @@ public class RestaurantJpaEntity {
     @NotBlank(message = "Opening hours is required")
     private String openingHours;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     @NotNull(message = "Owner is required")
     private UserJpaEntity owner;

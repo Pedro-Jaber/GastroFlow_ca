@@ -12,7 +12,7 @@ public class RestaurantPresenter {
                 restaurant.getAddress(),
                 restaurant.getCuisineType(),
                 restaurant.getOpeningHours(),
-                restaurant.getOwner().getId(),
+                restaurant.getOwnerId(),
                 restaurant.getCreatedAt(),
                 restaurant.getUpdatedAt());
         return restaurantOutputDTO;

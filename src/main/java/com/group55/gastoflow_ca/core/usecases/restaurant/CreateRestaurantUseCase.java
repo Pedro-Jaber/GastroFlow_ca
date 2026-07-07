@@ -34,7 +34,7 @@ public class CreateRestaurantUseCase {
                 .orElseThrow(() -> new UserNotFoundException("User with id " + input.ownerId() + " not found."));
 
         final Restaurant newRestaurant = Restaurant.create(input.name(), input.address(), input.cuisineType(),
-                input.openingHours(), owner);
+                input.openingHours(), owner.getId());
 
         Restaurant savedRestaurant = this.restaurantGateway.saveNewRestaurant(newRestaurant);
         return savedRestaurant;

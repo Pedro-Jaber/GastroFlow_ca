@@ -7,11 +7,7 @@ import java.util.UUID;
 import com.group55.gastoflow_ca.core.dtos.restaurant.RestaurantDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
-import com.group55.gastoflow_ca.core.dtos.user.UserDTO;
-import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
-import com.group55.gastoflow_ca.core.entities.User;
-import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IRestaurantDataSource;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IRestaurantGateway;
 
@@ -80,18 +76,7 @@ public class RestaurantGateway implements IRestaurantGateway {
                 restaurantDTO.address(),
                 restaurantDTO.cuisineType(),
                 restaurantDTO.openingHours(),
-                User.create(
-                        restaurantDTO.ownerDTO().id(),
-                        restaurantDTO.ownerDTO().name(),
-                        restaurantDTO.ownerDTO().emailAddress(),
-                        restaurantDTO.ownerDTO().login(),
-                        restaurantDTO.ownerDTO().password(),
-                        UserType.create(
-                                restaurantDTO.ownerDTO().userTypeDTO().id(),
-                                restaurantDTO.ownerDTO().userTypeDTO().name(),
-                                restaurantDTO.ownerDTO().userTypeDTO().permissions()),
-                        restaurantDTO.ownerDTO().createdAt(),
-                        restaurantDTO.ownerDTO().updatedAt()),
+                restaurantDTO.ownerId(),
                 restaurantDTO.createdAt(),
                 restaurantDTO.updatedAt());
     }
@@ -103,18 +88,7 @@ public class RestaurantGateway implements IRestaurantGateway {
                 restaurant.getAddress(),
                 restaurant.getCuisineType(),
                 restaurant.getOpeningHours(),
-                new UserDTO(
-                        restaurant.getOwner().getId(),
-                        restaurant.getOwner().getName(),
-                        restaurant.getOwner().getEmailAddress(),
-                        restaurant.getOwner().getLogin(),
-                        restaurant.getOwner().getPassword(),
-                        new UserTypeDTO(
-                                restaurant.getOwner().getUserType().getId(),
-                                restaurant.getOwner().getUserType().getName(),
-                                restaurant.getOwner().getUserType().getPermissions()),
-                        restaurant.getOwner().getCreatedAt(),
-                        restaurant.getOwner().getUpdatedAt()),
+                restaurant.getOwnerId(),
                 restaurant.getCreatedAt(),
                 restaurant.getUpdatedAt());
     }

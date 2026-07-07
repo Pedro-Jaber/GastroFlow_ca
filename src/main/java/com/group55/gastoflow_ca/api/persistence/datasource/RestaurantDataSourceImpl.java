@@ -11,22 +11,24 @@ import org.springframework.stereotype.Component;
 
 import com.group55.gastoflow_ca.api.persistence.entity.RestaurantJpaEntity;
 import com.group55.gastoflow_ca.api.persistence.entity.UserJpaEntity;
-import com.group55.gastoflow_ca.api.persistence.entity.UserTypeJpaEntity;
 import com.group55.gastoflow_ca.api.persistence.repository.RestaurantJpaRepository;
+import com.group55.gastoflow_ca.api.persistence.repository.UserJpaRepository;
 import com.group55.gastoflow_ca.core.dtos.restaurant.RestaurantDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
-import com.group55.gastoflow_ca.core.dtos.user.UserDTO;
-import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeDTO;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IRestaurantDataSource;
 
 @Component
 public class RestaurantDataSourceImpl implements IRestaurantDataSource {
 
     private final RestaurantJpaRepository restaurantJpaRepository;
+    private final UserJpaRepository userJpaRepository;
 
-    public RestaurantDataSourceImpl(RestaurantJpaRepository restaurantJpaRepository) {
+    public RestaurantDataSourceImpl(
+            RestaurantJpaRepository restaurantJpaRepository,
+            UserJpaRepository userJpaRepository) {
         this.restaurantJpaRepository = restaurantJpaRepository;
+        this.userJpaRepository = userJpaRepository;
     }
 
     @Override
@@ -38,7 +40,6 @@ public class RestaurantDataSourceImpl implements IRestaurantDataSource {
 
     @Override
     public PageOutputDTO<RestaurantDTO> findAll(PageInputDTO pageInput) {
-
         Pageable pageable = PageRequest.of(pageInput.page(), pageInput.size());
         Page<RestaurantJpaEntity> page = restaurantJpaRepository.findAll(pageable);
 
@@ -65,36 +66,30 @@ public class RestaurantDataSourceImpl implements IRestaurantDataSource {
     }
 
     @Override
-    public RestaurantDTO updateRestaurant(RestaurantDTO existingRestaurantDTO) {
-        RestaurantJpaEntity entity = toEntity(existingRestaurantDTO);
-        RestaurantJpaEntity updated = this.restaurantJpaRepository.save(entity);
+    public RestaurantDTO updateRestaurant(RestaurantDTO updatedRestaurantDTO) {
+        RestaurantJpaEntity entity = toEntity(updatedRestaurantDTO);
+        RestaurantJpaEntity updated = restaurantJpaRepository.save(entity);
         return toDTO(updated);
     }
 
     @Override
     public void deleteById(UUID id) {
-        this.restaurantJpaRepository.deleteById(id);
+        restaurantJpaRepository.deleteById(id);
     }
 
     private RestaurantJpaEntity toEntity(RestaurantDTO dto) {
+        UserJpaEntity ownerEntity = userJpaRepository
+                .findById(dto.ownerId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Owner not found with id: " + dto.ownerId()));
+
         return new RestaurantJpaEntity(
                 dto.id(),
                 dto.name(),
                 dto.address(),
                 dto.cuisineType(),
                 dto.openingHours(),
-                new UserJpaEntity(
-                        dto.ownerDTO().id(),
-                        dto.ownerDTO().name(),
-                        dto.ownerDTO().emailAddress(),
-                        dto.ownerDTO().login(),
-                        dto.ownerDTO().password(),
-                        new UserTypeJpaEntity(
-                                dto.ownerDTO().userTypeDTO().id(),
-                                dto.ownerDTO().userTypeDTO().name(),
-                                dto.ownerDTO().userTypeDTO().permissions()),
-                        dto.ownerDTO().createdAt(),
-                        dto.ownerDTO().updatedAt()),
+                ownerEntity,
                 dto.createdAt(),
                 dto.updatedAt());
     }
@@ -106,20 +101,8 @@ public class RestaurantDataSourceImpl implements IRestaurantDataSource {
                 entity.getAddress(),
                 entity.getCuisineType(),
                 entity.getOpeningHours(),
-                new UserDTO(
-                        entity.getOwner().getId(),
-                        entity.getOwner().getName(),
-                        entity.getOwner().getEmailAddress(),
-                        entity.getOwner().getLogin(),
-                        entity.getOwner().getPassword(),
-                        new UserTypeDTO(
-                                entity.getOwner().getUserType().getId(),
-                                entity.getOwner().getUserType().getName(),
-                                entity.getOwner().getUserType().getPermissions()),
-                        entity.getOwner().getCreatedAt(),
-                        entity.getOwner().getUpdatedAt()),
+                entity.getOwner().getId(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt());
     }
-
 }

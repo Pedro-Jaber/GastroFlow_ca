@@ -19,32 +19,33 @@ public class Restaurant {
     private String address;
     private String cuisineType;
     private String openingHours;
-    private User owner;
+    private UUID ownerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static Restaurant create(String name, String address, String cuisineType, String openingHours, User owner) {
+    public static Restaurant create(String name, String address, String cuisineType, String openingHours,
+            UUID ownerId) {
         Restaurant restaurant = new Restaurant();
         restaurant.id = UUID.randomUUID();
         restaurant.name = name;
         restaurant.address = address;
         restaurant.cuisineType = cuisineType;
         restaurant.openingHours = openingHours;
-        restaurant.owner = owner;
+        restaurant.ownerId = ownerId;
         restaurant.createdAt = LocalDateTime.now();
         restaurant.updatedAt = LocalDateTime.now();
         return restaurant;
     }
 
     public static Restaurant create(UUID id, String name, String address, String cuisineType, String openingHours,
-            User owner, LocalDateTime createdAt, LocalDateTime updatedAt) {
+            UUID ownerId, LocalDateTime createdAt, LocalDateTime updatedAt) {
         Restaurant restaurant = new Restaurant();
         restaurant.id = id;
         restaurant.name = name;
         restaurant.address = address;
         restaurant.cuisineType = cuisineType;
         restaurant.openingHours = openingHours;
-        restaurant.owner = owner;
+        restaurant.ownerId = ownerId;
         restaurant.createdAt = createdAt;
         restaurant.updatedAt = updatedAt;
         return restaurant;
