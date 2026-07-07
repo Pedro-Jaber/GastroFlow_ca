@@ -16,6 +16,7 @@ import com.group55.gastoflow_ca.core.interfaces.gateway.IMenuItemGateway;
 import com.group55.gastoflow_ca.core.presenters.MenuItemPresenter;
 import com.group55.gastoflow_ca.core.usecases.menuItem.CreateMenuItemUseCase;
 import com.group55.gastoflow_ca.core.usecases.menuItem.GetAllMenuItemsUseCase;
+import com.group55.gastoflow_ca.core.usecases.menuItem.GetMenuItemByIdUseCase;
 
 public class MenuItemController {
 
@@ -64,6 +65,16 @@ public class MenuItemController {
                 page.totalElements(),
                 page.totalPages());
 
+    }
+
+    public MenuItemOutputDTO getMenuItemById(UUID id) {
+
+        GetMenuItemByIdUseCase useCase = GetMenuItemByIdUseCase.create(this.menuItemGateway);
+
+        MenuItem menuItem = useCase.run(id);
+
+        MenuItemOutputDTO menuItemOutDTO = MenuItemPresenter.toOutputDTO(menuItem);
+        return menuItemOutDTO;
     }
 
 }

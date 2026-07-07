@@ -1,6 +1,8 @@
 package com.group55.gastoflow_ca.core.gateways;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.menu_item.MenuItemDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
@@ -43,6 +45,12 @@ public class MenuItemGateway implements IMenuItemGateway {
                 page.size(),
                 page.totalElements(),
                 page.totalPages());
+    }
+
+    @Override
+    public Optional<MenuItem> findById(UUID id) {
+        return this.menuItemDataSource.findById(id).map(this::toEntity);
+
     }
 
     private MenuItem toEntity(MenuItemDTO menuItemDTO) {

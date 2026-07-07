@@ -1,8 +1,11 @@
 package com.group55.gastoflow_ca.api.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +53,14 @@ public class MenuItemRestAdapter {
         PageInputDTO pageInput = new PageInputDTO(page, size);
 
         PageOutputDTO<MenuItemOutputDTO> output = menuItemController.getAllMenuItems(pageInput);
+
+        return ResponseEntity.ok(output);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MenuItemOutputDTO> getById(
+            @PathVariable UUID id) {
+        MenuItemOutputDTO output = menuItemController.getMenuItemById(id);
 
         return ResponseEntity.ok(output);
     }

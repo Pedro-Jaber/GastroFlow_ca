@@ -1,6 +1,8 @@
 package com.group55.gastoflow_ca.api.persistence.datasource;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,6 +54,11 @@ public class MenuItemDataSourceImpl implements IMenuItemDataSource {
                 page.getSize(),
                 page.getTotalElements(),
                 page.getTotalPages());
+    }
+
+    @Override
+    public Optional<MenuItemDTO> findById(UUID id) {
+        return this.menuItemJpaRepository.findById(id).map(this::toDTO);
     }
 
     private MenuItemJpaEntity toEntity(MenuItemDTO menuItemDTO) {
