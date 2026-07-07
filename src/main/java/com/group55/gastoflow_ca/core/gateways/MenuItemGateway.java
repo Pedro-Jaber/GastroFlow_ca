@@ -60,6 +60,11 @@ public class MenuItemGateway implements IMenuItemGateway {
         return toEntity(updatedMenuItemDTO);
     }
 
+    @Override
+    public void deleteById(UUID id) {
+        this.menuItemDataSource.deleteById(id);
+    }
+
     private MenuItem toEntity(MenuItemDTO menuItemDTO) {
         return MenuItem.create(
                 menuItemDTO.id(),

@@ -17,4 +17,6 @@ public interface IMenuItemDataSource {
 
     MenuItemDTO updateMenuItem(MenuItemDTO menuItemDTO);
 
+    void deleteById(UUID id);
+
 }

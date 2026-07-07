@@ -68,6 +68,11 @@ public class MenuItemDataSourceImpl implements IMenuItemDataSource {
         return toDTO(saved);
     }
 
+    @Override
+    public void deleteById(UUID id) {
+        this.menuItemJpaRepository.deleteById(id);
+    }
+
     private MenuItemJpaEntity toEntity(MenuItemDTO menuItemDTO) {
         RestaurantJpaEntity restaurantJpaEntity = this.restaurantJpaRepository
                 .findById(menuItemDTO.restaurantId())

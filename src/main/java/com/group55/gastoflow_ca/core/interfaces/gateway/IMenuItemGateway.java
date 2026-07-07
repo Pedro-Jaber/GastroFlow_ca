@@ -17,4 +17,6 @@ public interface IMenuItemGateway {
 
     MenuItem updateMenuItem(MenuItem existingMenuItem);
 
+    void deleteById(UUID id);
+
 }

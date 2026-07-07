@@ -16,6 +16,7 @@ import com.group55.gastoflow_ca.core.interfaces.dataSource.IRestaurantDataSource
 import com.group55.gastoflow_ca.core.interfaces.gateway.IMenuItemGateway;
 import com.group55.gastoflow_ca.core.presenters.MenuItemPresenter;
 import com.group55.gastoflow_ca.core.usecases.menuItem.CreateMenuItemUseCase;
+import com.group55.gastoflow_ca.core.usecases.menuItem.DeleteMenuItemUseCase;
 import com.group55.gastoflow_ca.core.usecases.menuItem.GetAllMenuItemsUseCase;
 import com.group55.gastoflow_ca.core.usecases.menuItem.GetMenuItemByIdUseCase;
 import com.group55.gastoflow_ca.core.usecases.menuItem.UpdateMenuItemUseCase;
@@ -88,6 +89,13 @@ public class MenuItemController {
 
         MenuItemOutputDTO menuItemOutDTO = MenuItemPresenter.toOutputDTO(menuItem);
         return menuItemOutDTO;
+    }
+
+    public void deleteMenuItem(UUID id) {
+
+        DeleteMenuItemUseCase useCase = DeleteMenuItemUseCase.create(this.menuItemGateway);
+
+        useCase.run(id);
     }
 
 }
