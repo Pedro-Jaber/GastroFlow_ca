@@ -5,16 +5,16 @@ import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IRestaurantGateway;
 
-public class GatAllRestaurantsUseCase {
+public class GetAllRestaurantsUseCase {
 
     private final IRestaurantGateway restaurantGateway;
 
-    private GatAllRestaurantsUseCase(IRestaurantGateway restaurantGateway) {
+    private GetAllRestaurantsUseCase(IRestaurantGateway restaurantGateway) {
         this.restaurantGateway = restaurantGateway;
     }
 
-    public static GatAllRestaurantsUseCase create(IRestaurantGateway restaurantGateway) {
-        return new GatAllRestaurantsUseCase(restaurantGateway);
+    public static GetAllRestaurantsUseCase create(IRestaurantGateway restaurantGateway) {
+        return new GetAllRestaurantsUseCase(restaurantGateway);
     }
 
     public PageOutputDTO<Restaurant> run(PageInputDTO pageInput) {

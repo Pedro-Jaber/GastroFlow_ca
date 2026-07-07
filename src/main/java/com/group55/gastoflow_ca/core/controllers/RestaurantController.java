@@ -16,7 +16,7 @@ import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserDataSource;
 import com.group55.gastoflow_ca.core.presenters.RestaurantPresenter;
 import com.group55.gastoflow_ca.core.usecases.restaurant.CreateRestaurantUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.DeleteRestaurantUseCase;
-import com.group55.gastoflow_ca.core.usecases.restaurant.GatAllRestaurantsUseCase;
+import com.group55.gastoflow_ca.core.usecases.restaurant.GetAllRestaurantsUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.GetRestaurantByIdUseCase;
 import com.group55.gastoflow_ca.core.usecases.restaurant.UpdateRestaurantUseCase;
 
@@ -54,7 +54,7 @@ public class RestaurantController {
 
     public PageOutputDTO<RestaurantOutputDTO> getAllRestaurants(PageInputDTO pageInput) {
 
-        GatAllRestaurantsUseCase useCase = GatAllRestaurantsUseCase.create(this.restaurantGateway);
+        GetAllRestaurantsUseCase useCase = GetAllRestaurantsUseCase.create(this.restaurantGateway);
 
         PageOutputDTO<Restaurant> page = useCase.run(pageInput);
 

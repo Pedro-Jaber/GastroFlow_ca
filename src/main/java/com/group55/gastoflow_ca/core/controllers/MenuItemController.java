@@ -1,7 +1,12 @@
 package com.group55.gastoflow_ca.core.controllers;
 
+import java.util.List;
+import java.util.UUID;
+
 import com.group55.gastoflow_ca.core.dtos.menu_item.CreateMenuItemInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.menu_item.MenuItemOutputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.MenuItem;
 import com.group55.gastoflow_ca.core.gateways.MenuItemGateway;
 import com.group55.gastoflow_ca.core.gateways.RestaurantGateway;
@@ -10,6 +15,7 @@ import com.group55.gastoflow_ca.core.interfaces.dataSource.IRestaurantDataSource
 import com.group55.gastoflow_ca.core.interfaces.gateway.IMenuItemGateway;
 import com.group55.gastoflow_ca.core.presenters.MenuItemPresenter;
 import com.group55.gastoflow_ca.core.usecases.menuItem.CreateMenuItemUseCase;
+import com.group55.gastoflow_ca.core.usecases.menuItem.GetAllMenuItemsUseCase;
 
 public class MenuItemController {
 
@@ -39,6 +45,25 @@ public class MenuItemController {
 
         MenuItemOutputDTO menuItemOutDTO = MenuItemPresenter.toOutputDTO(menuItem);
         return menuItemOutDTO;
+    }
+
+    public PageOutputDTO<MenuItemOutputDTO> getAllMenuItems(PageInputDTO pageInput) {
+
+        GetAllMenuItemsUseCase useCase = GetAllMenuItemsUseCase.create(this.menuItemGateway);
+
+        PageOutputDTO<MenuItem> page = useCase.run(pageInput);
+
+        List<MenuItemOutputDTO> content = page.content().stream()
+                .map(MenuItemPresenter::toOutputDTO)
+                .toList();
+
+        return new PageOutputDTO<>(
+                content,
+                page.page(),
+                page.size(),
+                page.totalElements(),
+                page.totalPages());
+
     }
 
 }

@@ -1,6 +1,10 @@
 package com.group55.gastoflow_ca.core.gateways;
 
+import java.util.List;
+
 import com.group55.gastoflow_ca.core.dtos.menu_item.MenuItemDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
+import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.MenuItem;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IMenuItemDataSource;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IMenuItemGateway;
@@ -22,6 +26,23 @@ public class MenuItemGateway implements IMenuItemGateway {
         final MenuItemDTO menuItemDTO = toDTO(menuItem);
         final MenuItemDTO savedMenuItemDTO = this.menuItemDataSource.saveNewMenuItem(menuItemDTO);
         return toEntity(savedMenuItemDTO);
+    }
+
+    @Override
+    public PageOutputDTO<MenuItem> findAll(PageInputDTO pageInput) {
+
+        PageOutputDTO<MenuItemDTO> page = this.menuItemDataSource.findAll(pageInput);
+
+        List<MenuItem> content = page.content().stream()
+                .map(this::toEntity)
+                .toList();
+
+        return new PageOutputDTO<>(
+                content,
+                page.page(),
+                page.size(),
+                page.totalElements(),
+                page.totalPages());
     }
 
     private MenuItem toEntity(MenuItemDTO menuItemDTO) {
