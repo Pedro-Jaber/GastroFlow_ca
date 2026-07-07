@@ -45,8 +45,6 @@ public class RestaurantRestAdapter {
                 request.openingHours(),
                 request.ownerId());
 
-        System.out.println("input:" + input);
-
         RestaurantOutputDTO output = restaurantController.createRestaurant(input);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(output);

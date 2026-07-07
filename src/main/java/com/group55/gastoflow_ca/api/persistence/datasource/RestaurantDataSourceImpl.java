@@ -16,6 +16,7 @@ import com.group55.gastoflow_ca.api.persistence.repository.UserJpaRepository;
 import com.group55.gastoflow_ca.core.dtos.restaurant.RestaurantDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
+import com.group55.gastoflow_ca.core.exceptions.UserNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IRestaurantDataSource;
 
 @Component
@@ -80,7 +81,7 @@ public class RestaurantDataSourceImpl implements IRestaurantDataSource {
     private RestaurantJpaEntity toEntity(RestaurantDTO dto) {
         UserJpaEntity ownerEntity = userJpaRepository
                 .findById(dto.ownerId())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new UserNotFoundException(
                         "Owner not found with id: " + dto.ownerId()));
 
         return new RestaurantJpaEntity(

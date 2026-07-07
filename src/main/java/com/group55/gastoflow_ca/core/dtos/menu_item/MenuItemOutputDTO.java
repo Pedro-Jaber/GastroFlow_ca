@@ -1,0 +1,18 @@
+package com.group55.gastoflow_ca.core.dtos.menu_item;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record MenuItemOutputDTO(
+        UUID id,
+        String name,
+        String description,
+        BigDecimal price,
+        boolean onlyInRestaurant,
+        String photoPath,
+        UUID restaurantId,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt) {
+
+}
