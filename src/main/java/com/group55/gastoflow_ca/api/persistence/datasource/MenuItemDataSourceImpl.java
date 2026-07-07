@@ -61,6 +61,13 @@ public class MenuItemDataSourceImpl implements IMenuItemDataSource {
         return this.menuItemJpaRepository.findById(id).map(this::toDTO);
     }
 
+    @Override
+    public MenuItemDTO updateMenuItem(MenuItemDTO menuItemDTO) {
+        MenuItemJpaEntity menuItemJpaEntity = toEntity(menuItemDTO);
+        MenuItemJpaEntity saved = this.menuItemJpaRepository.save(menuItemJpaEntity);
+        return toDTO(saved);
+    }
+
     private MenuItemJpaEntity toEntity(MenuItemDTO menuItemDTO) {
         RestaurantJpaEntity restaurantJpaEntity = this.restaurantJpaRepository
                 .findById(menuItemDTO.restaurantId())
@@ -86,7 +93,7 @@ public class MenuItemDataSourceImpl implements IMenuItemDataSource {
                 menuItemJpaEntity.getName(),
                 menuItemJpaEntity.getDescription(),
                 menuItemJpaEntity.getPrice(),
-                menuItemJpaEntity.isOnlyInRestaurant(),
+                menuItemJpaEntity.getOnlyInRestaurant(),
                 menuItemJpaEntity.getPhotoPath(),
                 menuItemJpaEntity.getRestaurant().getId(),
                 menuItemJpaEntity.getCreatedAt(),

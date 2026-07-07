@@ -43,7 +43,7 @@ public class MenuItemJpaEntity {
 
     @Column(name = "only_in_restaurant", nullable = false)
     @NotNull(message = "Only in restaurant is required")
-    private boolean onlyInRestaurant;
+    private Boolean onlyInRestaurant;
 
     @Column(name = "photo_path", nullable = false)
     @NotBlank(message = "Photo path is required")

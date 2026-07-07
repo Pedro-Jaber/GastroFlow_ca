@@ -15,4 +15,6 @@ public interface IMenuItemDataSource {
 
     Optional<MenuItemDTO> findById(UUID id);
 
+    MenuItemDTO updateMenuItem(MenuItemDTO menuItemDTO);
+
 }

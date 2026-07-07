@@ -53,6 +53,13 @@ public class MenuItemGateway implements IMenuItemGateway {
 
     }
 
+    @Override
+    public MenuItem updateMenuItem(MenuItem menuItem) {
+        final MenuItemDTO menuItemDTO = toDTO(menuItem);
+        final MenuItemDTO updatedMenuItemDTO = this.menuItemDataSource.updateMenuItem(menuItemDTO);
+        return toEntity(updatedMenuItemDTO);
+    }
+
     private MenuItem toEntity(MenuItemDTO menuItemDTO) {
         return MenuItem.create(
                 menuItemDTO.id(),

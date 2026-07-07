@@ -7,14 +7,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.group55.gastoflow_ca.api.dto.request.menuItem.CreateMenuItemRequest;
+import com.group55.gastoflow_ca.api.dto.request.menuItem.UpdateMenuItemRequest;
 import com.group55.gastoflow_ca.core.controllers.MenuItemController;
 import com.group55.gastoflow_ca.core.dtos.menu_item.CreateMenuItemInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.menu_item.MenuItemOutputDTO;
+import com.group55.gastoflow_ca.core.dtos.menu_item.UpdateMenuItemInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 
@@ -30,7 +34,7 @@ public class MenuItemRestAdapter {
 
     @PostMapping
     public ResponseEntity<MenuItemOutputDTO> create(
-            @RequestBody MenuItemOutputDTO request) {
+            @RequestBody CreateMenuItemRequest request) {
 
         CreateMenuItemInputDataDTO input = new CreateMenuItemInputDataDTO(
                 request.name(),
@@ -61,6 +65,24 @@ public class MenuItemRestAdapter {
     public ResponseEntity<MenuItemOutputDTO> getById(
             @PathVariable UUID id) {
         MenuItemOutputDTO output = menuItemController.getMenuItemById(id);
+
+        return ResponseEntity.ok(output);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MenuItemOutputDTO> update(
+            @PathVariable UUID id,
+            @RequestBody UpdateMenuItemRequest request) {
+
+        UpdateMenuItemInputDataDTO input = new UpdateMenuItemInputDataDTO(
+                request.name(),
+                request.description(),
+                request.price(),
+                request.onlyInRestaurant(),
+                request.photoPath(),
+                request.restaurantId());
+
+        MenuItemOutputDTO output = menuItemController.updateMenuItem(id, input);
 
         return ResponseEntity.ok(output);
     }

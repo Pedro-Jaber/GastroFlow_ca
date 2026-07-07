@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.group55.gastoflow_ca.core.dtos.menu_item.CreateMenuItemInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.menu_item.MenuItemOutputDTO;
+import com.group55.gastoflow_ca.core.dtos.menu_item.UpdateMenuItemInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.MenuItem;
@@ -17,6 +18,7 @@ import com.group55.gastoflow_ca.core.presenters.MenuItemPresenter;
 import com.group55.gastoflow_ca.core.usecases.menuItem.CreateMenuItemUseCase;
 import com.group55.gastoflow_ca.core.usecases.menuItem.GetAllMenuItemsUseCase;
 import com.group55.gastoflow_ca.core.usecases.menuItem.GetMenuItemByIdUseCase;
+import com.group55.gastoflow_ca.core.usecases.menuItem.UpdateMenuItemUseCase;
 
 public class MenuItemController {
 
@@ -72,6 +74,17 @@ public class MenuItemController {
         GetMenuItemByIdUseCase useCase = GetMenuItemByIdUseCase.create(this.menuItemGateway);
 
         MenuItem menuItem = useCase.run(id);
+
+        MenuItemOutputDTO menuItemOutDTO = MenuItemPresenter.toOutputDTO(menuItem);
+        return menuItemOutDTO;
+    }
+
+    public MenuItemOutputDTO updateMenuItem(UUID id, UpdateMenuItemInputDataDTO input) {
+
+        RestaurantGateway restaurantGateway = RestaurantGateway.create(this.restaurantDataSource);
+        UpdateMenuItemUseCase useCase = UpdateMenuItemUseCase.create(this.menuItemGateway, restaurantGateway);
+
+        MenuItem menuItem = useCase.run(id, input);
 
         MenuItemOutputDTO menuItemOutDTO = MenuItemPresenter.toOutputDTO(menuItem);
         return menuItemOutDTO;

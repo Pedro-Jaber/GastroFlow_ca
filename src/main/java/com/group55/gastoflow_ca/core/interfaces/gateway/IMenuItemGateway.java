@@ -15,4 +15,6 @@ public interface IMenuItemGateway {
 
     Optional<MenuItem> findById(UUID id);
 
+    MenuItem updateMenuItem(MenuItem existingMenuItem);
+
 }
