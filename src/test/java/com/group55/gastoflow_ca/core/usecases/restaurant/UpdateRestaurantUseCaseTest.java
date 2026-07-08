@@ -44,10 +44,12 @@ class UpdateRestaurantUseCaseTest {
     void shouldUpdateAllFieldsSuccessfully() {
         var id = UUID.randomUUID();
         var oldOwnerId = UUID.randomUUID();
-        var newOwnerId = UUID.randomUUID();
         var existing = Restaurant.create(id, "Nome Antigo", "Endereço Antigo", "Brasileira", "08:00-18:00",
                 oldOwnerId, java.time.LocalDateTime.now(), java.time.LocalDateTime.now());
+
         var newOwner = User.create("Novo Dono", "novo@email.com", "novo", "123", null);
+        var newOwnerId = newOwner.getId();
+
         var input = new UpdateRestaurantInputDataDTO("Nome Novo", "Endereço Novo", "Francesa", "09:00-23:00",
                 newOwnerId);
 
