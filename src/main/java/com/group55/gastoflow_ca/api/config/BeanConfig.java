@@ -3,6 +3,7 @@ package com.group55.gastoflow_ca.api.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.group55.gastoflow_ca.core.controllers.AuthController;
 import com.group55.gastoflow_ca.core.controllers.MenuItemController;
 import com.group55.gastoflow_ca.core.controllers.RestaurantController;
 import com.group55.gastoflow_ca.core.controllers.UserController;
@@ -37,5 +38,10 @@ public class BeanConfig {
     public MenuItemController menuItemController(IMenuItemDataSource menuItemDataSource,
             IRestaurantDataSource restaurantDataSource) {
         return MenuItemController.create(menuItemDataSource, restaurantDataSource);
+    }
+
+    @Bean
+    public AuthController authController(IUserDataSource userDataSource, IPasswordHasher passwordHasher) {
+        return AuthController.create(userDataSource, passwordHasher);
     }
 }
