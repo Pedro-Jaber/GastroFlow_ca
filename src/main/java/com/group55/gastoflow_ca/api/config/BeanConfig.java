@@ -7,6 +7,7 @@ import com.group55.gastoflow_ca.core.controllers.MenuItemController;
 import com.group55.gastoflow_ca.core.controllers.RestaurantController;
 import com.group55.gastoflow_ca.core.controllers.UserController;
 import com.group55.gastoflow_ca.core.controllers.UserTypeController;
+import com.group55.gastoflow_ca.core.interfaces.auth.IPasswordHasher;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IMenuItemDataSource;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IRestaurantDataSource;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserDataSource;
@@ -21,8 +22,9 @@ public class BeanConfig {
     }
 
     @Bean
-    public UserController userController(IUserDataSource userDataSource, IUserTypeDataSource userTypeDataSource) {
-        return UserController.create(userDataSource, userTypeDataSource);
+    public UserController userController(IUserDataSource userDataSource, IUserTypeDataSource userTypeDataSource,
+            IPasswordHasher passwordHasher) {
+        return UserController.create(userDataSource, userTypeDataSource, passwordHasher);
     }
 
     @Bean

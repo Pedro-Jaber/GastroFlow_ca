@@ -80,6 +80,7 @@ public class UserRestAdapter {
                 request.name(),
                 request.emailAddress(),
                 request.login(),
+                request.password(),
                 request.userTypeId());
 
         UserOutputDTO output = userController.updateUser(id, input);

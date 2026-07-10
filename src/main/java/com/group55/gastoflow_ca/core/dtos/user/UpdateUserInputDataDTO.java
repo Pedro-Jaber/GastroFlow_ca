@@ -6,6 +6,7 @@ public record UpdateUserInputDataDTO(
         String name,
         String emailAddress,
         String login,
+        String password,
         UUID userTypeId) {
 
 }

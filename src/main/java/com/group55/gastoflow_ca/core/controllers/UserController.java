@@ -11,6 +11,7 @@ import com.group55.gastoflow_ca.core.dtos.user.UserOutputDTO;
 import com.group55.gastoflow_ca.core.entities.User;
 import com.group55.gastoflow_ca.core.gateways.UserGateway;
 import com.group55.gastoflow_ca.core.gateways.UserTypeGateway;
+import com.group55.gastoflow_ca.core.interfaces.auth.IPasswordHasher;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserDataSource;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserTypeDataSource;
 import com.group55.gastoflow_ca.core.presenters.UserPresenter;
@@ -25,23 +26,32 @@ public class UserController {
     private final IUserDataSource userDataSource;
     private final IUserTypeDataSource userTypeDataSource;
 
+    private final IPasswordHasher passwordHasher;
+
     private final UserGateway userGateway;
 
-    private UserController(IUserDataSource userDataSource, IUserTypeDataSource userTypeDataSource) {
+    private UserController(
+            IUserDataSource userDataSource,
+            IUserTypeDataSource userTypeDataSource,
+            IPasswordHasher passwordHasher) {
         this.userDataSource = userDataSource;
         this.userTypeDataSource = userTypeDataSource;
+        this.passwordHasher = passwordHasher;
 
         this.userGateway = UserGateway.create(this.userDataSource);
     }
 
-    public static UserController create(IUserDataSource userDataSource, IUserTypeDataSource userTypeDataSource) {
-        return new UserController(userDataSource, userTypeDataSource);
+    public static UserController create(
+            IUserDataSource userDataSource,
+            IUserTypeDataSource userTypeDataSource,
+            IPasswordHasher passwordHasher) {
+        return new UserController(userDataSource, userTypeDataSource, passwordHasher);
     }
 
     public UserOutputDTO createUser(CreateUserInputDataDTO newUserDTO) {
         // UserGateway userGateway = UserGateway.create(this.userDataSource);
         UserTypeGateway userTypeGateway = UserTypeGateway.create(this.userTypeDataSource);
-        CreateUserUseCase useCase = CreateUserUseCase.create(this.userGateway, userTypeGateway);
+        CreateUserUseCase useCase = CreateUserUseCase.create(this.userGateway, userTypeGateway, this.passwordHasher);
 
         var user = useCase.run(newUserDTO);
         var userOutDTO = UserPresenter.toOutputDTO(user);
@@ -77,7 +87,7 @@ public class UserController {
 
     public UserOutputDTO updateUser(UUID id, UpdateUserInputDataDTO input) {
         UserTypeGateway userTypeGateway = UserTypeGateway.create(this.userTypeDataSource);
-        UpdateUserUseCase useCase = UpdateUserUseCase.create(this.userGateway, userTypeGateway);
+        UpdateUserUseCase useCase = UpdateUserUseCase.create(this.userGateway, userTypeGateway, passwordHasher);
 
         var user = useCase.run(id, input);
 

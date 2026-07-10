@@ -6,6 +6,7 @@ public record UpdateUserRequest(
         String name,
         String emailAddress,
         String login,
+        String password,
         UUID userTypeId) {
 
 }

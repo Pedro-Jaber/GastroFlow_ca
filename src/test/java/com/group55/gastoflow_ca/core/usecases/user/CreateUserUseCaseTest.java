@@ -25,6 +25,7 @@ import com.group55.gastoflow_ca.core.entities.User;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.exceptions.UserAlreadyExistsException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
+import com.group55.gastoflow_ca.core.interfaces.auth.IPasswordHasher;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserGateway;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
 
@@ -37,11 +38,14 @@ class CreateUserUseCaseTest {
     @Mock
     private IUserTypeGateway userTypeGateway;
 
+    @Mock
+    private IPasswordHasher passwordHasher;
+
     private CreateUserUseCase useCase;
 
     @BeforeEach
     void setup() {
-        useCase = CreateUserUseCase.create(userGateway, userTypeGateway);
+        useCase = CreateUserUseCase.create(userGateway, userTypeGateway, passwordHasher);
     }
 
     @DisplayName("Test Create User Use Case")
@@ -53,15 +57,18 @@ class CreateUserUseCaseTest {
         String emailAddress = "jdoe@ex.com";
         String login = "jdoe";
         String password = "password123";
+        String encodedPassword = "encoded-password123";
         UserType userType = UserType.create(UUID.randomUUID(), "Admin", null);
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime updatedAt = LocalDateTime.now();
 
         when(userGateway.findByLogin(anyString())).thenReturn(Optional.empty());
         when(userTypeGateway.findById(any())).thenReturn(Optional.of(userType));
+        when(passwordHasher.encode(password)).thenReturn(encodedPassword);
         when(userGateway.saveNewUser(any()))
                 .thenReturn(
-                        User.create(userId, name, emailAddress, login, password, userType, createdAt, updatedAt));
+                        User.create(userId, name, emailAddress, login, encodedPassword, userType, createdAt,
+                                updatedAt));
 
         // Act
         User user = useCase.run(new CreateUserInputDataDTO(name, emailAddress, login, password, userType.getId()));
@@ -71,7 +78,7 @@ class CreateUserUseCaseTest {
         assertThat(user.getName()).isEqualTo(name);
         assertThat(user.getEmailAddress()).isEqualTo(emailAddress);
         assertThat(user.getLogin()).isEqualTo(login);
-        assertThat(user.getPassword()).isEqualTo(password);
+        assertThat(user.getPassword()).isEqualTo(encodedPassword);
         assertThat(user.getUserType()).isEqualTo(userType);
         verify(userGateway, times(1)).saveNewUser(any());
     }
@@ -91,6 +98,7 @@ class CreateUserUseCaseTest {
 
         verify(userGateway, never()).saveNewUser(any());
         verify(userTypeGateway, never()).findById(any());
+        verify(passwordHasher, never()).encode(any());
     }
 
     @Test
@@ -106,6 +114,7 @@ class CreateUserUseCaseTest {
                 .hasMessageContaining(missingUserTypeId.toString());
 
         verify(userGateway, never()).saveNewUser(any());
+        verify(passwordHasher, never()).encode(any());
     }
 
     @Test
@@ -115,13 +124,50 @@ class CreateUserUseCaseTest {
 
         when(userGateway.findByLogin("jdoe")).thenReturn(Optional.empty());
         when(userTypeGateway.findById(userType.getId())).thenReturn(Optional.of(userType));
+        when(passwordHasher.encode(anyString())).thenReturn("encoded");
         when(userGateway.saveNewUser(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         useCase.run(input);
 
-        var order = inOrder(userGateway, userTypeGateway);
+        var order = inOrder(userGateway, userTypeGateway, passwordHasher);
         order.verify(userGateway).findByLogin("jdoe");
         order.verify(userTypeGateway).findById(userType.getId());
+        order.verify(passwordHasher).encode("password123");
         order.verify(userGateway).saveNewUser(any());
+    }
+
+    @Test
+    void shouldEncodeRawPasswordBeforeSaving() {
+        var userType = UserType.create(UUID.randomUUID(), "Admin", null);
+        var input = new CreateUserInputDataDTO("John Doe", "jdoe@ex.com", "jdoe", "raw-password", userType.getId());
+
+        when(userGateway.findByLogin("jdoe")).thenReturn(Optional.empty());
+        when(userTypeGateway.findById(userType.getId())).thenReturn(Optional.of(userType));
+        when(passwordHasher.encode("raw-password")).thenReturn("hashed-value");
+        when(userGateway.saveNewUser(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = useCase.run(input);
+
+        verify(passwordHasher, times(1)).encode("raw-password");
+        assertThat(result.getPassword()).isEqualTo("hashed-value");
+        assertThat(result.getPassword()).isNotEqualTo("raw-password");
+    }
+
+    @Test
+    void shouldNeverPersistRawPassword() {
+        var userType = UserType.create(UUID.randomUUID(), "Admin", null);
+        var input = new CreateUserInputDataDTO("John Doe", "jdoe@ex.com", "jdoe", "super-secret", userType.getId());
+
+        when(userGateway.findByLogin("jdoe")).thenReturn(Optional.empty());
+        when(userTypeGateway.findById(userType.getId())).thenReturn(Optional.of(userType));
+        when(passwordHasher.encode("super-secret")).thenReturn("$2a$10$fakehashvalue");
+        when(userGateway.saveNewUser(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        useCase.run(input);
+
+        var captor = org.mockito.ArgumentCaptor.forClass(User.class);
+        verify(userGateway).saveNewUser(captor.capture());
+
+        assertThat(captor.getValue().getPassword()).isEqualTo("$2a$10$fakehashvalue");
     }
 }
