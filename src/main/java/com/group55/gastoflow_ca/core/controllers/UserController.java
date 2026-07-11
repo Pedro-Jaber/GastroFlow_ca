@@ -9,6 +9,7 @@ import com.group55.gastoflow_ca.core.dtos.user.CreateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.user.UpdateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.user.UserOutputDTO;
 import com.group55.gastoflow_ca.core.entities.User;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.gateways.UserGateway;
 import com.group55.gastoflow_ca.core.gateways.UserTypeGateway;
 import com.group55.gastoflow_ca.core.interfaces.auth.IPasswordHasher;
@@ -48,21 +49,21 @@ public class UserController {
         return new UserController(userDataSource, userTypeDataSource, passwordHasher);
     }
 
-    public UserOutputDTO createUser(CreateUserInputDataDTO newUserDTO) {
+    public UserOutputDTO createUser(UserToken userToken, CreateUserInputDataDTO newUserDTO) {
         // UserGateway userGateway = UserGateway.create(this.userDataSource);
         UserTypeGateway userTypeGateway = UserTypeGateway.create(this.userTypeDataSource);
         CreateUserUseCase useCase = CreateUserUseCase.create(this.userGateway, userTypeGateway, this.passwordHasher);
 
-        var user = useCase.run(newUserDTO);
+        var user = useCase.run(userToken, newUserDTO);
         var userOutDTO = UserPresenter.toOutputDTO(user);
         return userOutDTO;
     }
 
-    public PageOutputDTO<UserOutputDTO> getAllUser(PageInputDTO pageInput) {
+    public PageOutputDTO<UserOutputDTO> getAllUser(UserToken userToken, PageInputDTO pageInput) {
 
         GetAllUserUseCase useCase = GetAllUserUseCase.create(userGateway);
 
-        PageOutputDTO<User> page = useCase.run(pageInput);
+        PageOutputDTO<User> page = useCase.run(userToken, pageInput);
 
         List<UserOutputDTO> content = page.content().stream()
                 .map(UserPresenter::toOutputDTO)
@@ -76,28 +77,28 @@ public class UserController {
                 page.totalPages());
     }
 
-    public UserOutputDTO getUserById(UUID id) {
+    public UserOutputDTO getUserById(UserToken userToken, UUID id) {
         GetUserByIdUseCase useCase = GetUserByIdUseCase.create(userGateway);
 
-        User user = useCase.run(id);
+        User user = useCase.run(userToken, id);
 
         var userOutputDTO = UserPresenter.toOutputDTO(user);
         return userOutputDTO;
     }
 
-    public UserOutputDTO updateUser(UUID id, UpdateUserInputDataDTO input) {
+    public UserOutputDTO updateUser(UserToken userToken, UUID id, UpdateUserInputDataDTO input) {
         UserTypeGateway userTypeGateway = UserTypeGateway.create(this.userTypeDataSource);
         UpdateUserUseCase useCase = UpdateUserUseCase.create(this.userGateway, userTypeGateway, passwordHasher);
 
-        var user = useCase.run(id, input);
+        var user = useCase.run(userToken, id, input);
 
         var userOutDTO = UserPresenter.toOutputDTO(user);
         return userOutDTO;
     }
 
-    public void deleteUser(UUID id) {
+    public void deleteUser(UserToken userToken, UUID id) {
         DeleteUserUseCase useCase = DeleteUserUseCase.create(userGateway);
 
-        useCase.run(id);
+        useCase.run(userToken, id);
     }
 }

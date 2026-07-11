@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeAlreadyExistsException;
 
 @ControllerAdvice
@@ -53,6 +54,15 @@ public class ControllerExceptionsHandler {
     }
 
     // * Business Rule Exceptions
+
+    // ── Auth ────────────────────────────────────────────────────────────────
+
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ResponseEntity<ProblemDetail> handleForbiddenActionException(ForbiddenActionException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.FORBIDDEN, "forbidden-action",
+                "Forbidden Action", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
+    }
 
     // ── User Type ───────────────────────────────────────────────────────────
 

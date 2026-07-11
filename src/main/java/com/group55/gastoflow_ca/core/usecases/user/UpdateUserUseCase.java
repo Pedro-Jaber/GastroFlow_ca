@@ -3,9 +3,12 @@ package com.group55.gastoflow_ca.core.usecases.user;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.group55.gastoflow_ca.core.auth.AuthorizationChecker;
 import com.group55.gastoflow_ca.core.dtos.user.UpdateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.User;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
+import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.exceptions.UserNotFoundException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.auth.IPasswordHasher;
@@ -31,7 +34,15 @@ public class UpdateUserUseCase {
         return new UpdateUserUseCase(userGateway, userTypeGateway, passwordHasher);
     }
 
-    public User run(UUID id, UpdateUserInputDataDTO input) {
+    public User run(UserToken userToken, UUID id, UpdateUserInputDataDTO input) {
+
+        boolean isSelf = userToken.getUserId().equals(id);
+
+        if (isSelf) {
+            AuthorizationChecker.requirePermission(userToken, Permission.EDIT_USER);
+        } else {
+            AuthorizationChecker.requirePermission(userToken, Permission.EDIT_ALL_USER);
+        }
 
         // Verify if user exists
         User existingUser = userGateway.findById(id)

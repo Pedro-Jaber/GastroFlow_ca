@@ -1,8 +1,11 @@
 package com.group55.gastoflow_ca.core.usecases.user;
 
+import com.group55.gastoflow_ca.core.auth.AuthorizationChecker;
 import com.group55.gastoflow_ca.core.dtos.user.CreateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.User;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
+import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.exceptions.UserAlreadyExistsException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.auth.IPasswordHasher;
@@ -28,7 +31,9 @@ public class CreateUserUseCase {
         return new CreateUserUseCase(userGateway, userTypeGateway, passwordHasher);
     }
 
-    public User run(CreateUserInputDataDTO createUserInputDataDTO) {
+    public User run(UserToken userToken, CreateUserInputDataDTO createUserInputDataDTO) {
+
+        AuthorizationChecker.requirePermission(userToken, Permission.CREATE_USER);
 
         this.userGateway.findByLogin(createUserInputDataDTO.login())
                 .ifPresent(user -> {

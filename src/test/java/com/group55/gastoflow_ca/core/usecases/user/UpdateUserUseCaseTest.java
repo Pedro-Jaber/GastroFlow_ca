@@ -2,6 +2,7 @@ package com.group55.gastoflow_ca.core.usecases.user;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +21,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.group55.gastoflow_ca.core.dtos.user.UpdateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.User;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
+import com.group55.gastoflow_ca.core.enums.Permission;
+import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
 import com.group55.gastoflow_ca.core.exceptions.UserNotFoundException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.auth.IPasswordHasher;
@@ -41,9 +45,16 @@ class UpdateUserUseCaseTest {
 
     private UpdateUserUseCase useCase;
 
+    private UserToken requestingUserWithPermission;
+
     @BeforeEach
     void setup() {
         useCase = UpdateUserUseCase.create(userGateway, userTypeGateway, passwordHasher);
+
+        UserType requesterUserType = UserType.create(
+                UUID.randomUUID(), "Admin", Set.of(Permission.EDIT_USER, Permission.EDIT_ALL_USER));
+        requestingUserWithPermission = new UserToken(
+                UUID.randomUUID(), "Admin User", "admin@ex.com", "admin", requesterUserType);
     }
 
     private User existingUser(UUID id, UserType userType) {
@@ -61,7 +72,7 @@ class UpdateUserUseCaseTest {
         when(userGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userGateway.updateUser(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getName()).isEqualTo("Jane Doe");
         assertThat(result.getEmailAddress()).isEqualTo("jane@ex.com");
@@ -77,7 +88,7 @@ class UpdateUserUseCaseTest {
 
         when(userGateway.findById(id)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.run(id, input))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, id, input))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining(id.toString());
 
@@ -95,7 +106,7 @@ class UpdateUserUseCaseTest {
         when(userGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userGateway.updateUser(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getName()).isEqualTo("John Doe");
         assertThat(result.getEmailAddress()).isEqualTo("jdoe@ex.com");
@@ -115,7 +126,7 @@ class UpdateUserUseCaseTest {
         when(userTypeGateway.findById(newUserType.getId())).thenReturn(Optional.of(newUserType));
         when(userGateway.updateUser(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getUserType()).isEqualTo(newUserType);
     }
@@ -131,7 +142,7 @@ class UpdateUserUseCaseTest {
         when(userGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userTypeGateway.findById(missingUserTypeId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.run(id, input))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, id, input))
                 .isInstanceOf(UserTypeNotFoundException.class)
                 .hasMessageContaining(missingUserTypeId.toString());
 
@@ -150,7 +161,7 @@ class UpdateUserUseCaseTest {
         when(userGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userGateway.updateUser(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getUpdatedAt()).isAfter(oldUpdatedAt);
     }
@@ -166,7 +177,7 @@ class UpdateUserUseCaseTest {
         when(passwordHasher.encode("new-raw-password")).thenReturn("hashed-new-password");
         when(userGateway.updateUser(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getPassword()).isEqualTo("hashed-new-password");
         verify(passwordHasher, times(1)).encode("new-raw-password");
@@ -182,7 +193,7 @@ class UpdateUserUseCaseTest {
         when(userGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userGateway.updateUser(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getPassword()).isEqualTo("123");
         verify(passwordHasher, never()).encode(anyString());
@@ -199,9 +210,59 @@ class UpdateUserUseCaseTest {
         when(passwordHasher.encode("super-secret")).thenReturn("$2a$10$fakehashvalue");
         when(userGateway.updateUser(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getPassword()).isEqualTo("$2a$10$fakehashvalue");
         assertThat(result.getPassword()).isNotEqualTo("super-secret");
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenRequestingUserLacksPermission() {
+        UserType requesterTypeWithoutPermission = UserType.create(UUID.randomUUID(), "Client", Set.of());
+        UserToken requestingUserWithoutPermission = new UserToken(
+                UUID.randomUUID(), "Some Client", "client@ex.com", "client", requesterTypeWithoutPermission);
+
+        var id = UUID.randomUUID();
+        var input = new UpdateUserInputDataDTO("Jane Doe", null, null, null, null);
+
+        assertThatThrownBy(() -> useCase.run(requestingUserWithoutPermission, id, input))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(userGateway, never()).findById(any());
+        verify(userGateway, never()).updateUser(any());
+        verify(passwordHasher, never()).encode(any());
+    }
+
+    @Test
+    void shouldAllowUpdatingOwnDataWithOnlyEditUserPermission() {
+        UUID selfId = UUID.randomUUID();
+        UserType selfType = UserType.create(UUID.randomUUID(), "Cliente", Set.of(Permission.EDIT_USER));
+        UserToken selfToken = new UserToken(selfId, "John Doe", "jdoe@ex.com", "jdoe", selfType);
+
+        var existing = existingUser(selfId, selfType);
+        var input = new UpdateUserInputDataDTO("Jane Doe", null, null, null, null);
+
+        when(userGateway.findById(selfId)).thenReturn(Optional.of(existing));
+        when(userGateway.updateUser(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        var result = useCase.run(selfToken, selfId, input);
+
+        assertThat(result.getName()).isEqualTo("Jane Doe");
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenUpdatingOtherUserWithoutEditAllPermission() {
+        UserType selfType = UserType.create(UUID.randomUUID(), "Cliente", Set.of(Permission.EDIT_USER));
+        UserToken selfToken = new UserToken(
+                UUID.randomUUID(), "John Doe", "jdoe@ex.com", "jdoe", selfType);
+
+        var otherId = UUID.randomUUID();
+        var input = new UpdateUserInputDataDTO("Jane Doe", null, null, null, null);
+
+        assertThatThrownBy(() -> useCase.run(selfToken, otherId, input))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(userGateway, never()).findById(any());
+        verify(userGateway, never()).updateUser(any());
     }
 }

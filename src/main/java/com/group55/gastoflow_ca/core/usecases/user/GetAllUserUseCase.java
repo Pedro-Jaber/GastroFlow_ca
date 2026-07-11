@@ -1,8 +1,11 @@
 package com.group55.gastoflow_ca.core.usecases.user;
 
+import com.group55.gastoflow_ca.core.auth.AuthorizationChecker;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.User;
+import com.group55.gastoflow_ca.core.entities.UserToken;
+import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserGateway;
 
 public class GetAllUserUseCase {
@@ -17,7 +20,10 @@ public class GetAllUserUseCase {
         return new GetAllUserUseCase(userGateway);
     }
 
-    public PageOutputDTO<User> run(PageInputDTO pageInput) {
+    public PageOutputDTO<User> run(UserToken userToken, PageInputDTO pageInput) {
+
+        AuthorizationChecker.requirePermission(userToken, Permission.READ_ALL_USER);
+
         return userGateway.findAll(pageInput);
     }
 }

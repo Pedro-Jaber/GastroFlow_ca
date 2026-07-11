@@ -2,6 +2,7 @@ package com.group55.gastoflow_ca.core.usecases.user;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.group55.gastoflow_ca.core.dtos.user.CreateUserInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.User;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
+import com.group55.gastoflow_ca.core.enums.Permission;
+import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
 import com.group55.gastoflow_ca.core.exceptions.UserAlreadyExistsException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.auth.IPasswordHasher;
@@ -43,9 +47,15 @@ class CreateUserUseCaseTest {
 
     private CreateUserUseCase useCase;
 
+    private UserToken requestingUserWithPermission;
+
     @BeforeEach
     void setup() {
         useCase = CreateUserUseCase.create(userGateway, userTypeGateway, passwordHasher);
+
+        UserType requesterUserType = UserType.create(UUID.randomUUID(), "Admin", Set.of(Permission.CREATE_USER));
+        requestingUserWithPermission = new UserToken(
+                UUID.randomUUID(), "Admin User", "admin@ex.com", "admin", requesterUserType);
     }
 
     @DisplayName("Test Create User Use Case")
@@ -71,7 +81,9 @@ class CreateUserUseCaseTest {
                                 updatedAt));
 
         // Act
-        User user = useCase.run(new CreateUserInputDataDTO(name, emailAddress, login, password, userType.getId()));
+        User user = useCase.run(
+                requestingUserWithPermission,
+                new CreateUserInputDataDTO(name, emailAddress, login, password, userType.getId()));
 
         // Assert
         assertThat(user).isNotNull();
@@ -92,7 +104,7 @@ class CreateUserUseCaseTest {
 
         when(userGateway.findByLogin("jdoe")).thenReturn(Optional.of(existingUser));
 
-        assertThatThrownBy(() -> useCase.run(input))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, input))
                 .isInstanceOf(UserAlreadyExistsException.class)
                 .hasMessageContaining("jdoe");
 
@@ -109,7 +121,7 @@ class CreateUserUseCaseTest {
         when(userGateway.findByLogin("jdoe")).thenReturn(Optional.empty());
         when(userTypeGateway.findById(missingUserTypeId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.run(input))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, input))
                 .isInstanceOf(UserTypeNotFoundException.class)
                 .hasMessageContaining(missingUserTypeId.toString());
 
@@ -127,7 +139,7 @@ class CreateUserUseCaseTest {
         when(passwordHasher.encode(anyString())).thenReturn("encoded");
         when(userGateway.saveNewUser(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        useCase.run(input);
+        useCase.run(requestingUserWithPermission, input);
 
         var order = inOrder(userGateway, userTypeGateway, passwordHasher);
         order.verify(userGateway).findByLogin("jdoe");
@@ -146,7 +158,7 @@ class CreateUserUseCaseTest {
         when(passwordHasher.encode("raw-password")).thenReturn("hashed-value");
         when(userGateway.saveNewUser(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        User result = useCase.run(input);
+        User result = useCase.run(requestingUserWithPermission, input);
 
         verify(passwordHasher, times(1)).encode("raw-password");
         assertThat(result.getPassword()).isEqualTo("hashed-value");
@@ -163,11 +175,29 @@ class CreateUserUseCaseTest {
         when(passwordHasher.encode("super-secret")).thenReturn("$2a$10$fakehashvalue");
         when(userGateway.saveNewUser(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        useCase.run(input);
+        useCase.run(requestingUserWithPermission, input);
 
         var captor = org.mockito.ArgumentCaptor.forClass(User.class);
         verify(userGateway).saveNewUser(captor.capture());
 
         assertThat(captor.getValue().getPassword()).isEqualTo("$2a$10$fakehashvalue");
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenRequestingUserLacksPermission() {
+        UserType requesterUserTypeWithoutPermission = UserType.create(UUID.randomUUID(), "Client", Set.of());
+        UserToken requestingUserWithoutPermission = new UserToken(
+                UUID.randomUUID(), "Some Client", "client@ex.com", "client", requesterUserTypeWithoutPermission);
+
+        var userType = UserType.create(UUID.randomUUID(), "Admin", null);
+        var input = new CreateUserInputDataDTO("John Doe", "jdoe@ex.com", "jdoe", "password123", userType.getId());
+
+        assertThatThrownBy(() -> useCase.run(requestingUserWithoutPermission, input))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(userGateway, never()).findByLogin(any());
+        verify(userTypeGateway, never()).findById(any());
+        verify(passwordHasher, never()).encode(any());
+        verify(userGateway, never()).saveNewUser(any());
     }
 }
