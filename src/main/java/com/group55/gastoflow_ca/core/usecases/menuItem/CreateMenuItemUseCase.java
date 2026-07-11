@@ -1,7 +1,11 @@
 package com.group55.gastoflow_ca.core.usecases.menuItem;
 
+import com.group55.gastoflow_ca.core.auth.AuthorizationChecker;
 import com.group55.gastoflow_ca.core.dtos.menu_item.CreateMenuItemInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.MenuItem;
+import com.group55.gastoflow_ca.core.entities.Restaurant;
+import com.group55.gastoflow_ca.core.entities.UserToken;
+import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.exceptions.RestaurantNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IMenuItemGateway;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IRestaurantGateway;
@@ -20,11 +24,19 @@ public class CreateMenuItemUseCase {
         return new CreateMenuItemUseCase(menuItemGateway, restaurantGateway);
     }
 
-    public MenuItem run(CreateMenuItemInputDataDTO input) {
+    public MenuItem run(UserToken userToken, CreateMenuItemInputDataDTO input) {
 
-        this.restaurantGateway.findById(input.restaurantId())
+        Restaurant restaurant = this.restaurantGateway.findById(input.restaurantId())
                 .orElseThrow(() -> new RestaurantNotFoundException(
                         "Restaurant with id " + input.restaurantId() + " not found."));
+
+        boolean isOwner = restaurant.getOwnerId().equals(userToken.getUserId());
+
+        if (isOwner) {
+            AuthorizationChecker.requirePermission(userToken, Permission.CREATE_MENU_ITEM);
+        } else {
+            AuthorizationChecker.requirePermission(userToken, Permission.CREATE_ALL_MENU_ITEM);
+        }
 
         final MenuItem menuItem = MenuItem.create(
                 input.name(),

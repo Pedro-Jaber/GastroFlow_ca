@@ -9,6 +9,7 @@ import com.group55.gastoflow_ca.core.dtos.menu_item.UpdateMenuItemInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.MenuItem;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.gateways.MenuItemGateway;
 import com.group55.gastoflow_ca.core.gateways.RestaurantGateway;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IMenuItemDataSource;
@@ -40,22 +41,22 @@ public class MenuItemController {
         return new MenuItemController(menuItemDataSource, restaurantDataSource);
     }
 
-    public MenuItemOutputDTO createMenuItem(CreateMenuItemInputDataDTO input) {
+    public MenuItemOutputDTO createMenuItem(UserToken userToken, CreateMenuItemInputDataDTO input) {
 
         RestaurantGateway restaurantGateway = RestaurantGateway.create(this.restaurantDataSource);
 
         CreateMenuItemUseCase useCase = CreateMenuItemUseCase.create(this.menuItemGateway, restaurantGateway);
-        MenuItem menuItem = useCase.run(input);
+        MenuItem menuItem = useCase.run(userToken, input);
 
         MenuItemOutputDTO menuItemOutDTO = MenuItemPresenter.toOutputDTO(menuItem);
         return menuItemOutDTO;
     }
 
-    public PageOutputDTO<MenuItemOutputDTO> getAllMenuItems(PageInputDTO pageInput) {
+    public PageOutputDTO<MenuItemOutputDTO> getAllMenuItems(UserToken userToken, PageInputDTO pageInput) {
 
         GetAllMenuItemsUseCase useCase = GetAllMenuItemsUseCase.create(this.menuItemGateway);
 
-        PageOutputDTO<MenuItem> page = useCase.run(pageInput);
+        PageOutputDTO<MenuItem> page = useCase.run(userToken, pageInput);
 
         List<MenuItemOutputDTO> content = page.content().stream()
                 .map(MenuItemPresenter::toOutputDTO)
@@ -70,32 +71,34 @@ public class MenuItemController {
 
     }
 
-    public MenuItemOutputDTO getMenuItemById(UUID id) {
+    public MenuItemOutputDTO getMenuItemById(UserToken userToken, UUID id) {
 
-        GetMenuItemByIdUseCase useCase = GetMenuItemByIdUseCase.create(this.menuItemGateway);
+        RestaurantGateway restaurantGateway = RestaurantGateway.create(this.restaurantDataSource);
+        GetMenuItemByIdUseCase useCase = GetMenuItemByIdUseCase.create(this.menuItemGateway, restaurantGateway);
 
-        MenuItem menuItem = useCase.run(id);
+        MenuItem menuItem = useCase.run(userToken, id);
 
         MenuItemOutputDTO menuItemOutDTO = MenuItemPresenter.toOutputDTO(menuItem);
         return menuItemOutDTO;
     }
 
-    public MenuItemOutputDTO updateMenuItem(UUID id, UpdateMenuItemInputDataDTO input) {
+    public MenuItemOutputDTO updateMenuItem(UserToken userToken, UUID id, UpdateMenuItemInputDataDTO input) {
 
         RestaurantGateway restaurantGateway = RestaurantGateway.create(this.restaurantDataSource);
         UpdateMenuItemUseCase useCase = UpdateMenuItemUseCase.create(this.menuItemGateway, restaurantGateway);
 
-        MenuItem menuItem = useCase.run(id, input);
+        MenuItem menuItem = useCase.run(userToken, id, input);
 
         MenuItemOutputDTO menuItemOutDTO = MenuItemPresenter.toOutputDTO(menuItem);
         return menuItemOutDTO;
     }
 
-    public void deleteMenuItem(UUID id) {
+    public void deleteMenuItem(UserToken userToken, UUID id) {
 
-        DeleteMenuItemUseCase useCase = DeleteMenuItemUseCase.create(this.menuItemGateway);
+        RestaurantGateway restaurantGateway = RestaurantGateway.create(this.restaurantDataSource);
+        DeleteMenuItemUseCase useCase = DeleteMenuItemUseCase.create(this.menuItemGateway, restaurantGateway);
 
-        useCase.run(id);
+        useCase.run(userToken, id);
     }
 
 }

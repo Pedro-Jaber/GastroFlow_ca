@@ -3,9 +3,12 @@ package com.group55.gastoflow_ca.core.usecases.menuItem;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.group55.gastoflow_ca.core.auth.AuthorizationChecker;
 import com.group55.gastoflow_ca.core.dtos.menu_item.UpdateMenuItemInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.MenuItem;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
+import com.group55.gastoflow_ca.core.entities.UserToken;
+import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.exceptions.MenuItemNotFoundException;
 import com.group55.gastoflow_ca.core.exceptions.RestaurantNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IMenuItemGateway;
@@ -25,9 +28,21 @@ public class UpdateMenuItemUseCase {
         return new UpdateMenuItemUseCase(menuItemGateway, restaurantGateway);
     }
 
-    public MenuItem run(UUID id, UpdateMenuItemInputDataDTO input) {
+    public MenuItem run(UserToken userToken, UUID id, UpdateMenuItemInputDataDTO input) {
         MenuItem existingMenuItem = this.menuItemGateway.findById(id)
                 .orElseThrow(() -> new MenuItemNotFoundException(id.toString()));
+
+        Restaurant currentRestaurant = this.restaurantGateway.findById(existingMenuItem.getRestaurantId())
+                .orElseThrow(() -> new RestaurantNotFoundException(
+                        "Restaurant with id " + existingMenuItem.getRestaurantId() + " not found."));
+
+        boolean isOwner = currentRestaurant.getOwnerId().equals(userToken.getUserId());
+
+        if (isOwner) {
+            AuthorizationChecker.requirePermission(userToken, Permission.EDIT_MENU_ITEM);
+        } else {
+            AuthorizationChecker.requirePermission(userToken, Permission.EDIT_ALL_MENU_ITEM);
+        }
 
         if (input.name() != null) {
             existingMenuItem.setName(input.name());

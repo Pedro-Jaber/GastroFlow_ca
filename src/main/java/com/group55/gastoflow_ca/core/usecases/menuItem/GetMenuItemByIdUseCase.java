@@ -2,25 +2,48 @@ package com.group55.gastoflow_ca.core.usecases.menuItem;
 
 import java.util.UUID;
 
+import com.group55.gastoflow_ca.core.auth.AuthorizationChecker;
 import com.group55.gastoflow_ca.core.entities.MenuItem;
+import com.group55.gastoflow_ca.core.entities.Restaurant;
+import com.group55.gastoflow_ca.core.entities.UserToken;
+import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.exceptions.MenuItemNotFoundException;
+import com.group55.gastoflow_ca.core.exceptions.RestaurantNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IMenuItemGateway;
+import com.group55.gastoflow_ca.core.interfaces.gateway.IRestaurantGateway;
 
 public class GetMenuItemByIdUseCase {
 
     private final IMenuItemGateway menuItemGateway;
+    private final IRestaurantGateway restaurantGateway;
 
-    private GetMenuItemByIdUseCase(IMenuItemGateway menuItemGateway) {
+    private GetMenuItemByIdUseCase(IMenuItemGateway menuItemGateway, IRestaurantGateway restaurantGateway) {
         this.menuItemGateway = menuItemGateway;
+        this.restaurantGateway = restaurantGateway;
     }
 
-    public static GetMenuItemByIdUseCase create(IMenuItemGateway menuItemGateway) {
-        return new GetMenuItemByIdUseCase(menuItemGateway);
+    public static GetMenuItemByIdUseCase create(IMenuItemGateway menuItemGateway, IRestaurantGateway restaurantGateway) {
+        return new GetMenuItemByIdUseCase(menuItemGateway, restaurantGateway);
     }
 
-    public MenuItem run(UUID id) {
-        return this.menuItemGateway.findById(id)
+    public MenuItem run(UserToken userToken, UUID id) {
+
+        MenuItem menuItem = this.menuItemGateway.findById(id)
                 .orElseThrow(() -> new MenuItemNotFoundException("MenuItem with id " + id + " not found."));
+
+        Restaurant restaurant = this.restaurantGateway.findById(menuItem.getRestaurantId())
+                .orElseThrow(() -> new RestaurantNotFoundException(
+                        "Restaurant with id " + menuItem.getRestaurantId() + " not found."));
+
+        boolean isOwner = restaurant.getOwnerId().equals(userToken.getUserId());
+
+        if (isOwner) {
+            AuthorizationChecker.requirePermission(userToken, Permission.READ_MENU_ITEM);
+        } else {
+            AuthorizationChecker.requirePermission(userToken, Permission.READ_ALL_MENU_ITEM);
+        }
+
+        return menuItem;
     }
 
 }
