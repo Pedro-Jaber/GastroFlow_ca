@@ -37,7 +37,7 @@ public class UserJpaEntity {
     @Email(message = "User email must be a valid email address")
     private String emailAddress;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     @NotBlank(message = "Login is required")
     private String login;
 
