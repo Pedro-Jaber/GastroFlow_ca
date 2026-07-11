@@ -44,7 +44,7 @@ public class UserTypeController {
         return userTypeOutputDTO;
     }
 
-    public PageOutputDTO<UserTypeOutputDTO> GetAllUserType(UserToken userToken, PageInputDTO pageInput) {
+    public PageOutputDTO<UserTypeOutputDTO> getAllUserType(UserToken userToken, PageInputDTO pageInput) {
         GetAllUserTypeUseCase useCase = GetAllUserTypeUseCase.create(userTypeGateway);
 
         PageOutputDTO<UserType> page = useCase.run(userToken, pageInput);
@@ -61,7 +61,7 @@ public class UserTypeController {
                 page.totalPages());
     }
 
-    public UserTypeOutputDTO GetUserTypeById(UserToken userToken, UUID id) {
+    public UserTypeOutputDTO getUserTypeById(UserToken userToken, UUID id) {
         GetUserTypeByIdUseCase useCase = GetUserTypeByIdUseCase.create(userTypeGateway);
 
         var userType = useCase.run(userToken, id);

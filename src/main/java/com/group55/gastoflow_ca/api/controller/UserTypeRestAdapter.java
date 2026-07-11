@@ -57,7 +57,7 @@ public class UserTypeRestAdapter {
             @RequestParam(defaultValue = "10") int size) {
 
         PageInputDTO pageInput = new PageInputDTO(page, size);
-        PageOutputDTO<UserTypeOutputDTO> output = userTypeController.GetAllUserType(userToken, pageInput);
+        PageOutputDTO<UserTypeOutputDTO> output = userTypeController.getAllUserType(userToken, pageInput);
 
         return ResponseEntity.ok(output);
     }
@@ -66,7 +66,7 @@ public class UserTypeRestAdapter {
     public ResponseEntity<UserTypeOutputDTO> getById(
             @AuthenticationPrincipal UserToken userToken,
             @PathVariable UUID id) {
-        UserTypeOutputDTO output = userTypeController.GetUserTypeById(userToken, id);
+        UserTypeOutputDTO output = userTypeController.getUserTypeById(userToken, id);
 
         return ResponseEntity.ok(output);
     }
