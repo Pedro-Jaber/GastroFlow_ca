@@ -2,8 +2,11 @@ package com.group55.gastoflow_ca.core.usecases.userType;
 
 import java.util.UUID;
 
+import com.group55.gastoflow_ca.core.auth.AuthorizationChecker;
 import com.group55.gastoflow_ca.core.dtos.usertype.UpdateUserTypeInputDataDTO;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
+import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
 
@@ -19,7 +22,9 @@ public class UpdateUserTypeUseCase {
         return new UpdateUserTypeUseCase(userTypeGateway);
     }
 
-    public UserType run(UUID id, UpdateUserTypeInputDataDTO input) {
+    public UserType run(UserToken userToken, UUID id, UpdateUserTypeInputDataDTO input) {
+
+        AuthorizationChecker.requirePermission(userToken, Permission.EDIT_USERTYPE);
 
         // Verify if usertype exists
         var existingUserType = this.userTypeGateway.findById(id)

@@ -19,8 +19,10 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.group55.gastoflow_ca.core.dtos.usertype.UpdateUserTypeInputDataDTO;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.enums.Permission;
+import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
 
@@ -32,9 +34,16 @@ class UpdateUserTypeUseCaseTest {
 
     private UpdateUserTypeUseCase useCase;
 
+    private UserToken requestingUserWithPermission;
+
     @BeforeEach
     void setup() {
         useCase = UpdateUserTypeUseCase.create(userTypeGateway);
+
+        UserType requesterUserType = UserType.create(
+                UUID.randomUUID(), "Admin", Set.of(Permission.EDIT_USERTYPE));
+        requestingUserWithPermission = new UserToken(
+                UUID.randomUUID(), "Admin User", "admin@ex.com", "admin", requesterUserType);
     }
 
     @Test
@@ -46,7 +55,7 @@ class UpdateUserTypeUseCaseTest {
         when(userTypeGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userTypeGateway.updateUserType(any(UserType.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getName()).isEqualTo("Dono de Restaurante");
         assertThat(result.getPermissions()).isEqualTo(Set.of(Permission.CREATE_RESTAURANT));
@@ -60,7 +69,7 @@ class UpdateUserTypeUseCaseTest {
 
         when(userTypeGateway.findById(id)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.run(id, input))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, id, input))
                 .isInstanceOf(UserTypeNotFoundException.class)
                 .hasMessageContaining(id.toString());
 
@@ -76,7 +85,7 @@ class UpdateUserTypeUseCaseTest {
         when(userTypeGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userTypeGateway.updateUserType(any(UserType.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getName()).isEqualTo("Cliente");
         assertThat(result.getPermissions()).isEqualTo(Set.of(Permission.CREATE_RESTAURANT));
@@ -91,7 +100,7 @@ class UpdateUserTypeUseCaseTest {
         when(userTypeGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userTypeGateway.updateUserType(any(UserType.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getName()).isEqualTo("Cliente");
         assertThat(result.getPermissions()).isEqualTo(Set.of(Permission.CREATE_MENU_ITEM));
@@ -106,7 +115,7 @@ class UpdateUserTypeUseCaseTest {
         when(userTypeGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userTypeGateway.updateUserType(any(UserType.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        var result = useCase.run(id, input);
+        var result = useCase.run(requestingUserWithPermission, id, input);
 
         assertThat(result.getName()).isEqualTo("Cliente Premium");
         assertThat(result.getPermissions()).isEqualTo(Set.of(Permission.CREATE_MENU_ITEM));
@@ -121,10 +130,26 @@ class UpdateUserTypeUseCaseTest {
         when(userTypeGateway.findById(id)).thenReturn(Optional.of(existing));
         when(userTypeGateway.updateUserType(any(UserType.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        useCase.run(id, input);
+        useCase.run(requestingUserWithPermission, id, input);
 
         var inOrder = inOrder(userTypeGateway);
         inOrder.verify(userTypeGateway).findById(id);
         inOrder.verify(userTypeGateway).updateUserType(any());
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenRequestingUserLacksPermission() {
+        UserType requesterTypeWithoutPermission = UserType.create(UUID.randomUUID(), "Cliente", Set.of());
+        UserToken requestingUserWithoutPermission = new UserToken(
+                UUID.randomUUID(), "Some Client", "client@ex.com", "client", requesterTypeWithoutPermission);
+
+        var id = UUID.randomUUID();
+        var input = new UpdateUserTypeInputDataDTO("Gerente", Set.of());
+
+        assertThatThrownBy(() -> useCase.run(requestingUserWithoutPermission, id, input))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(userTypeGateway, never()).findById(any());
+        verify(userTypeGateway, never()).updateUserType(any());
     }
 }

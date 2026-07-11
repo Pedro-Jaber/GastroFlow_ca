@@ -9,14 +9,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.enums.Permission;
+import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
 
@@ -28,9 +32,16 @@ class GetUserTypeByIdUseCaseTest {
 
     private GetUserTypeByIdUseCase useCase;
 
+    private UserToken requestingUserWithPermission;
+
     @BeforeEach
     void setup() {
         useCase = GetUserTypeByIdUseCase.create(userTypeGateway);
+
+        UserType requesterUserType = UserType.create(
+                UUID.randomUUID(), "Admin", Set.of(Permission.READ_USERTYPE));
+        requestingUserWithPermission = new UserToken(
+                UUID.randomUUID(), "Admin User", "admin@ex.com", "admin", requesterUserType);
     }
 
     @Test
@@ -40,7 +51,7 @@ class GetUserTypeByIdUseCaseTest {
 
         when(userTypeGateway.findById(id)).thenReturn(Optional.of(userType));
 
-        var result = useCase.run(id);
+        var result = useCase.run(requestingUserWithPermission, id);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(id);
@@ -54,7 +65,7 @@ class GetUserTypeByIdUseCaseTest {
 
         when(userTypeGateway.findById(id)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.run(id))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, id))
                 .isInstanceOf(UserTypeNotFoundException.class)
                 .hasMessageContaining(id.toString());
     }
@@ -66,8 +77,22 @@ class GetUserTypeByIdUseCaseTest {
 
         when(userTypeGateway.findById(id)).thenReturn(Optional.of(userType));
 
-        useCase.run(id);
+        useCase.run(requestingUserWithPermission, id);
 
         verify(userTypeGateway, times(1)).findById(id);
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenRequestingUserLacksPermission() {
+        UserType requesterTypeWithoutPermission = UserType.create(UUID.randomUUID(), "Cliente", Set.of());
+        UserToken requestingUserWithoutPermission = new UserToken(
+                UUID.randomUUID(), "Some Client", "client@ex.com", "client", requesterTypeWithoutPermission);
+
+        var id = UUID.randomUUID();
+
+        assertThatThrownBy(() -> useCase.run(requestingUserWithoutPermission, id))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(userTypeGateway, never()).findById(any());
     }
 }

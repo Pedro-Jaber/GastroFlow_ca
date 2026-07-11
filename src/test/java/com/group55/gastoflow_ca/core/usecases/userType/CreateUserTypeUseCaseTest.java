@@ -2,6 +2,7 @@ package com.group55.gastoflow_ca.core.usecases.userType;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -18,8 +19,10 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.group55.gastoflow_ca.core.dtos.usertype.CreateUserTypeInputDataDTO;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.enums.Permission;
+import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeAlreadyExistsException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
 
@@ -31,9 +34,16 @@ class CreateUserTypeUseCaseTest {
 
     private CreateUserTypeUseCase useCase;
 
+    private UserToken requestingUserWithPermission;
+
     @BeforeEach
     void setup() {
         useCase = CreateUserTypeUseCase.create(userTypeGateway);
+
+        UserType requesterUserType = UserType.create(
+                UUID.randomUUID(), "Admin", Set.of(Permission.CREATE_USERTYPE));
+        requestingUserWithPermission = new UserToken(
+                UUID.randomUUID(), "Admin User", "admin@ex.com", "admin", requesterUserType);
     }
 
     @Test
@@ -45,7 +55,7 @@ class CreateUserTypeUseCaseTest {
         when(userTypeGateway.findByName("Dono de Restaurante")).thenReturn(Optional.empty());
         when(userTypeGateway.saveNewUserType(any(UserType.class))).thenReturn(savedUserType);
 
-        var result = useCase.run(input);
+        var result = useCase.run(requestingUserWithPermission, input);
 
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo("Dono de Restaurante");
@@ -61,7 +71,7 @@ class CreateUserTypeUseCaseTest {
 
         when(userTypeGateway.findByName("Cliente")).thenReturn(Optional.of(existing));
 
-        assertThatThrownBy(() -> useCase.run(input))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, input))
                 .isInstanceOf(UserTypeAlreadyExistsException.class)
                 .hasMessageContaining("Cliente");
 
@@ -76,7 +86,7 @@ class CreateUserTypeUseCaseTest {
         when(userTypeGateway.findByName("Gerente")).thenReturn(Optional.empty());
         when(userTypeGateway.saveNewUserType(any())).thenReturn(saved);
 
-        useCase.run(input);
+        useCase.run(requestingUserWithPermission, input);
 
         var inOrder = inOrder(userTypeGateway);
         inOrder.verify(userTypeGateway).findByName("Gerente");
@@ -92,9 +102,24 @@ class CreateUserTypeUseCaseTest {
         when(userTypeGateway.findByName(any())).thenReturn(Optional.empty());
         when(userTypeGateway.saveNewUserType(any())).thenReturn(saved);
 
-        var result = useCase.run(input);
+        var result = useCase.run(requestingUserWithPermission, input);
 
         assertThat(result.getPermissions())
                 .containsExactlyInAnyOrderElementsOf(permissions);
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenRequestingUserLacksPermission() {
+        UserType requesterTypeWithoutPermission = UserType.create(UUID.randomUUID(), "Cliente", Set.of());
+        UserToken requestingUserWithoutPermission = new UserToken(
+                UUID.randomUUID(), "Some Client", "client@ex.com", "client", requesterTypeWithoutPermission);
+
+        var input = new CreateUserTypeInputDataDTO("Gerente", Set.of());
+
+        assertThatThrownBy(() -> useCase.run(requestingUserWithoutPermission, input))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(userTypeGateway, never()).findByName(any());
+        verify(userTypeGateway, never()).saveNewUserType(any());
     }
 }

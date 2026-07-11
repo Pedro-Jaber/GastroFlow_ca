@@ -5,11 +5,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,8 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.enums.Permission;
+import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IUserTypeGateway;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,9 +33,16 @@ class GetAllUserTypeUseCaseTest {
 
     private GetAllUserTypeUseCase useCase;
 
+    private UserToken requestingUserWithPermission;
+
     @BeforeEach
     void setup() {
         useCase = GetAllUserTypeUseCase.create(userTypeGateway);
+
+        UserType requesterUserType = UserType.create(
+                UUID.randomUUID(), "Admin", Set.of(Permission.READ_ALL_USERTYPE));
+        requestingUserWithPermission = new UserToken(
+                UUID.randomUUID(), "Admin User", "admin@ex.com", "admin", requesterUserType);
     }
 
     @Test
@@ -45,7 +56,7 @@ class GetAllUserTypeUseCaseTest {
 
         when(userTypeGateway.findAll(pageInput)).thenReturn(expectedPage);
 
-        var result = useCase.run(pageInput);
+        var result = useCase.run(requestingUserWithPermission, pageInput);
 
         assertThat(result).isNotNull();
         assertThat(result.content()).hasSize(2);
@@ -62,7 +73,7 @@ class GetAllUserTypeUseCaseTest {
 
         when(userTypeGateway.findAll(pageInput)).thenReturn(emptyPage);
 
-        var result = useCase.run(pageInput);
+        var result = useCase.run(requestingUserWithPermission, pageInput);
 
         assertThat(result.content()).isEmpty();
         assertThat(result.totalElements()).isEqualTo(0L);
@@ -76,7 +87,7 @@ class GetAllUserTypeUseCaseTest {
 
         when(userTypeGateway.findAll(pageInput)).thenReturn(page);
 
-        var result = useCase.run(pageInput);
+        var result = useCase.run(requestingUserWithPermission, pageInput);
 
         assertThat(result.page()).isEqualTo(2);
         assertThat(result.size()).isEqualTo(5);
@@ -88,7 +99,7 @@ class GetAllUserTypeUseCaseTest {
         var pageInput = new PageInputDTO(0, 10);
         when(userTypeGateway.findAll(any())).thenReturn(new PageOutputDTO<>(List.of(), 0, 10, 0L, 0));
 
-        useCase.run(pageInput);
+        useCase.run(requestingUserWithPermission, pageInput);
 
         verify(userTypeGateway, times(1)).findAll(pageInput);
     }
@@ -103,11 +114,25 @@ class GetAllUserTypeUseCaseTest {
         when(userTypeGateway.findAll(pageInput))
                 .thenReturn(new PageOutputDTO<>(List.of(userType), 0, 10, 1L, 1));
 
-        var result = useCase.run(pageInput);
+        var result = useCase.run(requestingUserWithPermission, pageInput);
 
         var resultUserType = result.content().get(0);
         assertThat(resultUserType.getId()).isEqualTo(id);
         assertThat(resultUserType.getName()).isEqualTo("Admin");
         assertThat(resultUserType.getPermissions()).isEqualTo(permissions);
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenRequestingUserLacksPermission() {
+        UserType requesterTypeWithoutPermission = UserType.create(UUID.randomUUID(), "Cliente", Set.of());
+        UserToken requestingUserWithoutPermission = new UserToken(
+                UUID.randomUUID(), "Some Client", "client@ex.com", "client", requesterTypeWithoutPermission);
+
+        var pageInput = new PageInputDTO(0, 10);
+
+        assertThatThrownBy(() -> useCase.run(requestingUserWithoutPermission, pageInput))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(userTypeGateway, never()).findAll(any());
     }
 }

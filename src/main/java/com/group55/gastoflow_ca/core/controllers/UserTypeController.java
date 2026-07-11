@@ -8,6 +8,7 @@ import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.CreateUserTypeInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UpdateUserTypeInputDataDTO;
 import com.group55.gastoflow_ca.core.dtos.usertype.UserTypeOutputDTO;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.entities.UserType;
 import com.group55.gastoflow_ca.core.gateways.UserTypeGateway;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IUserTypeDataSource;
@@ -34,19 +35,19 @@ public class UserTypeController {
         return new UserTypeController(userTypeDataSource);
     }
 
-    public UserTypeOutputDTO createUserType(CreateUserTypeInputDataDTO input) {
+    public UserTypeOutputDTO createUserType(UserToken userToken, CreateUserTypeInputDataDTO input) {
         CreateUserTypeUseCase useCase = CreateUserTypeUseCase.create(userTypeGateway);
 
-        var userType = useCase.run(input);
+        var userType = useCase.run(userToken, input);
         var userTypeOutputDTO = UserTypePresenter.toOutputDTO(userType);
 
         return userTypeOutputDTO;
     }
 
-    public PageOutputDTO<UserTypeOutputDTO> GetAllUserType(PageInputDTO pageInput) {
+    public PageOutputDTO<UserTypeOutputDTO> GetAllUserType(UserToken userToken, PageInputDTO pageInput) {
         GetAllUserTypeUseCase useCase = GetAllUserTypeUseCase.create(userTypeGateway);
 
-        PageOutputDTO<UserType> page = useCase.run(pageInput);
+        PageOutputDTO<UserType> page = useCase.run(userToken, pageInput);
 
         List<UserTypeOutputDTO> content = page.content().stream()
                 .map(UserTypePresenter::toOutputDTO)
@@ -60,28 +61,28 @@ public class UserTypeController {
                 page.totalPages());
     }
 
-    public UserTypeOutputDTO GetUserTypeById(UUID id) {
+    public UserTypeOutputDTO GetUserTypeById(UserToken userToken, UUID id) {
         GetUserTypeByIdUseCase useCase = GetUserTypeByIdUseCase.create(userTypeGateway);
 
-        var userType = useCase.run(id);
+        var userType = useCase.run(userToken, id);
         var userTypeOutputDTO = UserTypePresenter.toOutputDTO(userType);
 
         return userTypeOutputDTO;
     }
 
-    public UserTypeOutputDTO updateUserType(UUID id, UpdateUserTypeInputDataDTO input) {
+    public UserTypeOutputDTO updateUserType(UserToken userToken, UUID id, UpdateUserTypeInputDataDTO input) {
         UpdateUserTypeUseCase useCase = UpdateUserTypeUseCase.create(userTypeGateway);
 
-        var userType = useCase.run(id, input);
+        var userType = useCase.run(userToken, id, input);
         var userTypeOutputDTO = UserTypePresenter.toOutputDTO(userType);
 
         return userTypeOutputDTO;
     }
 
-    public void deleteUserType(UUID id) {
+    public void deleteUserType(UserToken userToken, UUID id) {
         DeleteUserTypeUseCase useCase = DeleteUserTypeUseCase.create(userTypeGateway);
 
-        useCase.run(id);
+        useCase.run(userToken, id);
     }
 
 }
