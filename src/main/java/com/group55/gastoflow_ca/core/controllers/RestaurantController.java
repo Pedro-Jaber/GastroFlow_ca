@@ -9,6 +9,7 @@ import com.group55.gastoflow_ca.core.dtos.restaurant.UpdateRestaurantInputDataDT
 import com.group55.gastoflow_ca.core.dtos.shared.PageInputDTO;
 import com.group55.gastoflow_ca.core.dtos.shared.PageOutputDTO;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
+import com.group55.gastoflow_ca.core.entities.UserToken;
 import com.group55.gastoflow_ca.core.gateways.RestaurantGateway;
 import com.group55.gastoflow_ca.core.gateways.UserGateway;
 import com.group55.gastoflow_ca.core.interfaces.dataSource.IRestaurantDataSource;
@@ -39,24 +40,24 @@ public class RestaurantController {
         return new RestaurantController(restaurantDataSource, userDataSource);
     }
 
-    public RestaurantOutputDTO createRestaurant(CreateRestaurantInputDataDTO input) {
+    public RestaurantOutputDTO createRestaurant(UserToken userToken, CreateRestaurantInputDataDTO input) {
 
         UserGateway userGateway = UserGateway.create(userDataSource);
 
         CreateRestaurantUseCase useCase = CreateRestaurantUseCase.create(this.restaurantGateway, userGateway);
 
-        var restaurant = useCase.run(input);
+        var restaurant = useCase.run(userToken, input);
 
         var restaurantOutDTO = RestaurantPresenter.toOutputDTO(restaurant);
         return restaurantOutDTO;
 
     }
 
-    public PageOutputDTO<RestaurantOutputDTO> getAllRestaurants(PageInputDTO pageInput) {
+    public PageOutputDTO<RestaurantOutputDTO> getAllRestaurants(UserToken userToken, PageInputDTO pageInput) {
 
         GetAllRestaurantsUseCase useCase = GetAllRestaurantsUseCase.create(this.restaurantGateway);
 
-        PageOutputDTO<Restaurant> page = useCase.run(pageInput);
+        PageOutputDTO<Restaurant> page = useCase.run(userToken, pageInput);
 
         List<RestaurantOutputDTO> content = page.content().stream()
                 .map(RestaurantPresenter::toOutputDTO)
@@ -70,31 +71,31 @@ public class RestaurantController {
                 page.totalPages());
     }
 
-    public RestaurantOutputDTO getRestaurantById(UUID id) {
+    public RestaurantOutputDTO getRestaurantById(UserToken userToken, UUID id) {
 
         GetRestaurantByIdUseCase useCase = GetRestaurantByIdUseCase.create(this.restaurantGateway);
 
-        Restaurant restaurant = useCase.run(id);
+        Restaurant restaurant = useCase.run(userToken, id);
 
         var restaurantOutDTO = RestaurantPresenter.toOutputDTO(restaurant);
         return restaurantOutDTO;
     }
 
-    public RestaurantOutputDTO updateRestaurant(UUID id, UpdateRestaurantInputDataDTO input) {
+    public RestaurantOutputDTO updateRestaurant(UserToken userToken, UUID id, UpdateRestaurantInputDataDTO input) {
         UserGateway userGateway = UserGateway.create(userDataSource);
         UpdateRestaurantUseCase useCase = UpdateRestaurantUseCase.create(this.restaurantGateway, userGateway);
 
-        Restaurant restaurant = useCase.run(id, input);
+        Restaurant restaurant = useCase.run(userToken, id, input);
 
         var restaurantOutDTO = RestaurantPresenter.toOutputDTO(restaurant);
         return restaurantOutDTO;
     }
 
-    public void deleteRestaurant(UUID id) {
+    public void deleteRestaurant(UserToken userToken, UUID id) {
 
         DeleteRestaurantUseCase useCase = DeleteRestaurantUseCase.create(this.restaurantGateway);
 
-        useCase.run(id);
+        useCase.run(userToken, id);
     }
 
 }

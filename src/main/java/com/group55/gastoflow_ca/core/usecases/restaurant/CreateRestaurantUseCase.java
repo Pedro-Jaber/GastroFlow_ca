@@ -1,8 +1,11 @@
 package com.group55.gastoflow_ca.core.usecases.restaurant;
 
+import com.group55.gastoflow_ca.core.auth.AuthorizationChecker;
 import com.group55.gastoflow_ca.core.dtos.restaurant.CreateRestaurantInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
 import com.group55.gastoflow_ca.core.entities.User;
+import com.group55.gastoflow_ca.core.entities.UserToken;
+import com.group55.gastoflow_ca.core.enums.Permission;
 import com.group55.gastoflow_ca.core.exceptions.RestaurantAlreadyExistsException;
 import com.group55.gastoflow_ca.core.exceptions.UserNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IRestaurantGateway;
@@ -22,7 +25,9 @@ public class CreateRestaurantUseCase {
         return new CreateRestaurantUseCase(restaurantGateway, userGateway);
     }
 
-    public Restaurant run(CreateRestaurantInputDataDTO input) {
+    public Restaurant run(UserToken userToken, CreateRestaurantInputDataDTO input) {
+
+        AuthorizationChecker.requirePermission(userToken, Permission.CREATE_RESTAURANT);
 
         this.restaurantGateway.findByName(input.name())
                 .ifPresent(r -> {

@@ -1,6 +1,7 @@
 package com.group55.gastoflow_ca.core.usecases.restaurant;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.group55.gastoflow_ca.core.dtos.restaurant.CreateRestaurantInputDataDTO;
 import com.group55.gastoflow_ca.core.entities.Restaurant;
 import com.group55.gastoflow_ca.core.entities.User;
+import com.group55.gastoflow_ca.core.entities.UserToken;
+import com.group55.gastoflow_ca.core.entities.UserType;
+import com.group55.gastoflow_ca.core.enums.Permission;
+import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
 import com.group55.gastoflow_ca.core.exceptions.RestaurantAlreadyExistsException;
 import com.group55.gastoflow_ca.core.exceptions.UserNotFoundException;
 import com.group55.gastoflow_ca.core.interfaces.gateway.IRestaurantGateway;
@@ -35,9 +40,16 @@ class CreateRestaurantUseCaseTest {
 
     private CreateRestaurantUseCase useCase;
 
+    private UserToken requestingUserWithPermission;
+
     @BeforeEach
     void setup() {
         useCase = CreateRestaurantUseCase.create(restaurantGateway, userGateway);
+
+        UserType requesterUserType = UserType.create(
+                UUID.randomUUID(), "Dono de Restaurante", Set.of(Permission.CREATE_RESTAURANT));
+        requestingUserWithPermission = new UserToken(
+                UUID.randomUUID(), "Dono", "dono@ex.com", "dono", requesterUserType);
     }
 
     @Test
@@ -51,7 +63,7 @@ class CreateRestaurantUseCaseTest {
         when(userGateway.findById(ownerId)).thenReturn(Optional.of(owner));
         when(restaurantGateway.saveNewRestaurant(any(Restaurant.class))).thenReturn(savedRestaurant);
 
-        var result = useCase.run(input);
+        var result = useCase.run(requestingUserWithPermission, input);
 
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo("Bar do Zé");
@@ -67,7 +79,7 @@ class CreateRestaurantUseCaseTest {
 
         when(restaurantGateway.findByName("Bar do Zé")).thenReturn(Optional.of(existing));
 
-        assertThatThrownBy(() -> useCase.run(input))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, input))
                 .isInstanceOf(RestaurantAlreadyExistsException.class)
                 .hasMessageContaining("Bar do Zé");
 
@@ -83,7 +95,7 @@ class CreateRestaurantUseCaseTest {
         when(restaurantGateway.findByName("Bar do Zé")).thenReturn(Optional.empty());
         when(userGateway.findById(ownerId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.run(input))
+        assertThatThrownBy(() -> useCase.run(requestingUserWithPermission, input))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining(ownerId.toString());
 
@@ -101,11 +113,28 @@ class CreateRestaurantUseCaseTest {
         when(userGateway.findById(ownerId)).thenReturn(Optional.of(owner));
         when(restaurantGateway.saveNewRestaurant(any())).thenReturn(saved);
 
-        useCase.run(input);
+        useCase.run(requestingUserWithPermission, input);
 
         var inOrder = org.mockito.Mockito.inOrder(restaurantGateway, userGateway);
         inOrder.verify(restaurantGateway).findByName("Bar do Zé");
         inOrder.verify(userGateway).findById(ownerId);
         inOrder.verify(restaurantGateway).saveNewRestaurant(any());
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenRequestingUserLacksPermission() {
+        UserType requesterTypeWithoutPermission = UserType.create(UUID.randomUUID(), "Cliente", Set.of());
+        UserToken requestingUserWithoutPermission = new UserToken(
+                UUID.randomUUID(), "Some Client", "client@ex.com", "client", requesterTypeWithoutPermission);
+
+        var input = new CreateRestaurantInputDataDTO(
+                "Bar do Zé", "Rua A, 123", "Brasileira", "08:00-22:00", UUID.randomUUID());
+
+        assertThatThrownBy(() -> useCase.run(requestingUserWithoutPermission, input))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(restaurantGateway, never()).findByName(any());
+        verify(userGateway, never()).findById(any());
+        verify(restaurantGateway, never()).saveNewRestaurant(any());
     }
 }
