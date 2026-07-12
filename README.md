@@ -5,7 +5,7 @@ Sistema de gestão para restaurantes desenvolvido para o Tech Challenge (Fase 2)
 Permite cadastrar tipos de usuário, restaurantes e itens de cardápio, com autenticação via login e JWT.
 
 > Para mais detalhes e decisões técnicas, veja a documentação do projeto.
-<!-- [`documentação`](./documentacao.pdf) -->
+<!-- [documentação completa do projeto](./docs/README.md) -->
 
 ## Funcionalidades
 
