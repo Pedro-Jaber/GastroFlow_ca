@@ -1,0 +1,773 @@
+{
+  "info": {
+    "_postman_id": "f32316ad-a623-4f9f-9f6e-92d3c6fa2f1b",
+    "name": "gastroflow_ca",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "39750032"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "/auth/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Get token\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.collectionVariables.set(\"TOKEN\", jsonData.token);\r",
+                  "})\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"login\": \"admin\",\r\n    \"password\": \"admin123\"\r\n\r\n    //\"login\": \"cliente\",\r\n    //\"password\": \"senha123\"\r\n}\r\n    //\"login\": \"restowner\",\r\n    //\"password\": \"senha123\"    ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "usertype",
+      "item": [
+        {
+          "name": "/usertype",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\":\"Teste\",\r\n    \"permissions\": [\r\n        \"READ_USER\",\r\n        \"EDIT_USER\",\r\n        \"DELETE_USER\",\r\n        \"CREATE_RESTAURANT\",\r\n        \"READ_RESTAURANT\",\r\n        \"EDIT_RESTAURANT\",\r\n        \"DELETE_RESTAURANT\",\r\n        \"CREATE_MENU_ITEM\",\r\n        \"READ_MENU_ITEM\",\r\n        \"EDIT_MENU_ITEM\",\r\n        \"DELETE_MENU_ITEM\"\r\n    ]\r\n}\r\n\r\n/*\r\n\r\n\"CREATE_USERTYPE\",\r\n\"READ_USERTYPE\",\r\n\"READ_ALL_USERTYPE\",\r\n\"EDIT_USERTYPE\",\r\n\"EDIT_ALL_USERTYPE\",\r\n\"DELETE_USERTYPE\",\r\n\"DELETE_ALL_USERTYPE\",\r\n\r\n\"CREATE_USER\",\r\n\"READ_USER\",\r\n\"READ_ALL_USER\",\r\n\"EDIT_USER\",\r\n\"EDIT_ALL_USER\",\r\n\"DELETE_USER\",\r\n\"DELETE_ALL_USER\",\r\n\r\n\"CREATE_RESTAURANT\",\r\n\"READ_RESTAURANT\",\r\n\"READ_ALL_RESTAURANT\",\r\n\"EDIT_RESTAURANT\",\r\n\"EDIT_ALL_RESTAURANT\",\r\n\"DELETE_RESTAURANT\",\r\n\"DELETE_ALL_RESTAURANT\",\r\n\r\n\"CREATE_MENU_ITEM\",\r\n\"CREATE_ALL_MENU_ITEM\",\r\n\"READ_MENU_ITEM\",\r\n\"READ_ALL_MENU_ITEM\",\r\n\"EDIT_MENU_ITEM\",\r\n\"EDIT_ALL_MENU_ITEM\",\r\n\"DELETE_MENU_ITEM\",\r\n\"DELETE_ALL_MENU_ITEM\"\r\n\r\n*/",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/usertype",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usertype"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/usertype",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/usertype",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usertype"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/usertype/{id}",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/usertype/105e6f67-96b1-4f58-b0f5-df95692a9abb",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usertype",
+                "105e6f67-96b1-4f58-b0f5-df95692a9abb"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/usertype/{id}",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"RestaurantOwner\",\r\n    \"permissions\": [\r\n        //\"CREATE_USERTYPE\",\r\n        //\"READ_USERTYPE\",\r\n        //\"EDIT_USERTYPE\",\r\n        //\"DELETE_USERTYPE\",\r\n\r\n        //\"CREATE_USER\",\r\n        //\"READ_USER\",\r\n        //\"EDIT_USER\",\r\n        //\"DELETE_USER\",\r\n\r\n        \"CREATE_RESTAURANT\",\r\n        \"READ_RESTAURANT\",\r\n        \"EDIT_RESTAURANT\",\r\n        \"DELETE_RESTAURANT\",\r\n\r\n        \"CREATE_MENU_ITEM\",\r\n        \"READ_MENU_ITEM\",\r\n        \"EDIT_MENU_ITEM\",\r\n        \"DELETE_MENU_ITEM\"\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/usertype/314ca3a3-6c11-48fd-99d2-07c2e8829933",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usertype",
+                "314ca3a3-6c11-48fd-99d2-07c2e8829933"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/usertype/{id}",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/usertype/3bc54026-f42b-47db-94fc-0b83bb0303ef",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "usertype",
+                "3bc54026-f42b-47db-94fc-0b83bb0303ef"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "/users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"user\",\r\n    \"emailAddress\": \"user@user.com\",\r\n    \"login\": \"user\",\r\n    \"password\": \"user1234\",\r\n    \"userTypeId\": \"00c2fa6f-4fd4-46ba-ad65-82eb4e004a2a\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/users/{id}",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users/105e6f67-96b1-4f58-b0f5-df95692a9abb",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "users",
+                "105e6f67-96b1-4f58-b0f5-df95692a9abb"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"password\": \"1234\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/32c81f4a-a79d-4666-bc00-9989d3c8a9f5",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "users",
+                "32c81f4a-a79d-4666-bc00-9989d3c8a9f5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users/b9965578-75cc-40a5-b501-0b60f92ebefb",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "users",
+                "b9965578-75cc-40a5-b501-0b60f92ebefb"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "restaurants",
+      "item": [
+        {
+          "name": "/restaurants",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"China in box - guara 2\",\r\n    \"address\": \"Rua das flores 123, guara 2\",\r\n    \"cuisineType\": \"Fake chinese\",\r\n    \"openingHours\": \"08:00 - 22:00\",\r\n    \"ownerId\": \"105e6f67-96b1-4f58-b0f5-df95692a9abb\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/restaurants",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "restaurants"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/restaurants",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/restaurants",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "restaurants"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/restaurants/{id}",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"China in box\",\r\n    \"address\": \"Rua das flores 123\",\r\n    \"cuisineType\": \"Fake chinese\",\r\n    \"openingHours\": \"08:00 - 22:00\",\r\n    \"ownerId\": \"32c81f4a-a79d-4666-bc00-9989d3c8a9f5_\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/restaurants/1927841f-b00c-494f-9e83-8a29d6251051",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "restaurants",
+                "1927841f-b00c-494f-9e83-8a29d6251051"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/restaurants/{id}",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"China in box - guara 1\"\r\n    //\"address\": \"Rua das flores 123\",\r\n    //\"cuisineType\": \"Fake chinese\",\r\n    //\"openingHours\": \"08:00 - 22:00\",\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/restaurants/1927841f-b00c-494f-9e83-8a29d6251051",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "restaurants",
+                "1927841f-b00c-494f-9e83-8a29d6251051"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/restaurants/{id}",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/restaurants/77beaf58-7ca6-400b-a071-efdd6e20a5d7",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "restaurants",
+                "77beaf58-7ca6-400b-a071-efdd6e20a5d7"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "menu-items",
+      "item": [
+        {
+          "name": "/menu-items",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Yakisoba\",\r\n  \"description\": \"Macarrão oriental salteado com legumes frescos e carne ao molho especial.\",\r\n  \"price\": 39.90,\r\n  \"onlyInRestaurant\": true,\r\n  \"photoPath\": \"/images/products/yakisoba.jpg\",\r\n  \"restaurantId\": \"1927841f-b00c-494f-9e83-8a29d6251051\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/menu-items",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "menu-items"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/menu-items",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"China in box\",\r\n    \"address\": \"Rua das flores 123\",\r\n    \"cuisineType\": \"Fake chinese\",\r\n    \"openingHours\": \"08:00 - 22:00\",\r\n    \"ownerId\": \"32c81f4a-a79d-4666-bc00-9989d3c8a9f5_\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/menu-items",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "menu-items"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/menu-items/{id}",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"China in box\",\r\n    \"address\": \"Rua das flores 123\",\r\n    \"cuisineType\": \"Fake chinese\",\r\n    \"openingHours\": \"08:00 - 22:00\",\r\n    \"ownerId\": \"32c81f4a-a79d-4666-bc00-9989d3c8a9f5_\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/menu-items/be1d9f64-218f-4c8c-9af2-4fe931810daa",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "menu-items",
+                "be1d9f64-218f-4c8c-9af2-4fe931810daa"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/menu-items/{id}",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    //\"name\": \"string\",\r\n    //\"description\": \"string\",\r\n    //\"price\": 0,\r\n    \"onlyInRestaurant\": false\r\n    //\"photoPath\": \"www.fotos.fotos/yakisoba\"\r\n    //\"restaurantId\": \"string\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/menu-items/be1d9f64-218f-4c8c-9af2-4fe931810daa",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "menu-items",
+                "be1d9f64-218f-4c8c-9af2-4fe931810daa"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/menu-items/{id}",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{TOKEN}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/menu-items/be1d9f64-218f-4c8c-9af2-4fe931810daa",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "menu-items",
+                "be1d9f64-218f-4c8c-9af2-4fe931810daa"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "TOKEN",
+      "value": ""
+    }
+  ]
+}
