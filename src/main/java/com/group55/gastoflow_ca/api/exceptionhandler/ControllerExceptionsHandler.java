@@ -14,7 +14,15 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.group55.gastoflow_ca.core.exceptions.ForbiddenActionException;
+import com.group55.gastoflow_ca.core.exceptions.InvalidCredentialsException;
+import com.group55.gastoflow_ca.core.exceptions.InvalidTokenException;
+import com.group55.gastoflow_ca.core.exceptions.MenuItemNotFoundException;
+import com.group55.gastoflow_ca.core.exceptions.RestaurantAlreadyExistsException;
+import com.group55.gastoflow_ca.core.exceptions.RestaurantNotFoundException;
+import com.group55.gastoflow_ca.core.exceptions.UserAlreadyExistsException;
+import com.group55.gastoflow_ca.core.exceptions.UserNotFoundException;
 import com.group55.gastoflow_ca.core.exceptions.UserTypeAlreadyExistsException;
+import com.group55.gastoflow_ca.core.exceptions.UserTypeNotFoundException;
 
 @ControllerAdvice
 public class ControllerExceptionsHandler {
@@ -64,6 +72,20 @@ public class ControllerExceptionsHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problem);
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidTokenException(InvalidTokenException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.UNAUTHORIZED, "invalid-token",
+                "Invalid Token", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problem);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ProblemDetail> handleInvalidCredentialsException(InvalidCredentialsException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.UNAUTHORIZED, "invalid-credentials",
+                "Invalid Credentials", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(problem);
+    }
+
     // ── User Type ───────────────────────────────────────────────────────────
 
     @ExceptionHandler(UserTypeAlreadyExistsException.class)
@@ -71,6 +93,65 @@ public class ControllerExceptionsHandler {
         ProblemDetail problem = buildProblem(HttpStatus.CONFLICT, "user-type-already-exists",
                 "User Type Already Exists", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(UserTypeNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleUserTypeNotFoundException(UserTypeNotFoundException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.NOT_FOUND, "user-type-not-found",
+                "User Type Not Found", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    // ── User ────────────────────────────────────────────────────────────────
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ProblemDetail> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.CONFLICT, "user-already-exists",
+                "User Already Exists", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleUserNotFoundException(UserNotFoundException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.NOT_FOUND, "user-not-found",
+                "User Not Found", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    // ── Restaurant ──────────────────────────────────────────────────────────
+
+    @ExceptionHandler(RestaurantAlreadyExistsException.class)
+    public ResponseEntity<ProblemDetail> handleRestaurantAlreadyExistsException(RestaurantAlreadyExistsException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.CONFLICT, "restaurant-already-exists",
+                "Restaurant Already Exists", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem);
+    }
+
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleRestaurantNotFoundException(RestaurantNotFoundException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.NOT_FOUND, "restaurant-not-found",
+                "Restaurant Not Found", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    // ── Menu Item ───────────────────────────────────────────────────────────
+
+    @ExceptionHandler(MenuItemNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleMenuItemNotFoundException(MenuItemNotFoundException e) {
+        ProblemDetail problem = buildProblem(HttpStatus.NOT_FOUND, "menu-item-not-found",
+                "Menu Item Not Found", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem);
+    }
+
+    // ── Fallback ────────────────────────────────────────────────────────────
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ProblemDetail> handleUnexpectedException(Exception e) {
+        logger.error("Unexpected error", e);
+
+        ProblemDetail problem = buildProblem(HttpStatus.INTERNAL_SERVER_ERROR, "internal-error",
+                "Internal Server Error", "An unexpected error occurred");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem);
     }
 
 }
