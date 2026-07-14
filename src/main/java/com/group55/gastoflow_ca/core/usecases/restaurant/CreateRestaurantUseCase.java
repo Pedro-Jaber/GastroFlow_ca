@@ -27,7 +27,13 @@ public class CreateRestaurantUseCase {
 
     public Restaurant run(UserToken userToken, CreateRestaurantInputDataDTO input) {
 
-        AuthorizationChecker.requirePermission(userToken, Permission.CREATE_RESTAURANT);
+        boolean isOwner = input.ownerId().equals(userToken.getUserId());
+
+        if (isOwner) {
+            AuthorizationChecker.requirePermission(userToken, Permission.CREATE_RESTAURANT);
+        } else {
+            AuthorizationChecker.requirePermission(userToken, Permission.CREATE_ALL_RESTAURANT);
+        }
 
         this.restaurantGateway.findByName(input.name())
                 .ifPresent(r -> {

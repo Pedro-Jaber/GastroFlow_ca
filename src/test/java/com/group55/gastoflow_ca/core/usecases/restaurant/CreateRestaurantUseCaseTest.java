@@ -47,9 +47,9 @@ class CreateRestaurantUseCaseTest {
         useCase = CreateRestaurantUseCase.create(restaurantGateway, userGateway);
 
         UserType requesterUserType = UserType.create(
-                UUID.randomUUID(), "Dono de Restaurante", Set.of(Permission.CREATE_RESTAURANT));
+                UUID.randomUUID(), "Admin", Set.of(Permission.CREATE_RESTAURANT, Permission.CREATE_ALL_RESTAURANT));
         requestingUserWithPermission = new UserToken(
-                UUID.randomUUID(), "Dono", "dono@ex.com", "dono", requesterUserType);
+                UUID.randomUUID(), "Admin User", "admin@ex.com", "admin", requesterUserType);
     }
 
     @Test
@@ -131,6 +131,44 @@ class CreateRestaurantUseCaseTest {
                 "Bar do Zé", "Rua A, 123", "Brasileira", "08:00-22:00", UUID.randomUUID());
 
         assertThatThrownBy(() -> useCase.run(requestingUserWithoutPermission, input))
+                .isInstanceOf(ForbiddenActionException.class);
+
+        verify(restaurantGateway, never()).findByName(any());
+        verify(userGateway, never()).findById(any());
+        verify(restaurantGateway, never()).saveNewRestaurant(any());
+    }
+
+    @Test
+    void shouldAllowOwnerToCreateOwnRestaurantWithOnlyCreateRestaurantPermission() {
+        UUID ownerId = UUID.randomUUID();
+        UserType ownerType = UserType.create(
+                UUID.randomUUID(), "Dono de Restaurante", Set.of(Permission.CREATE_RESTAURANT));
+        UserToken ownerToken = new UserToken(ownerId, "Dono", "dono@ex.com", "dono", ownerType);
+
+        var owner = User.create("Dono", "dono@ex.com", "dono", "123", null);
+        var input = new CreateRestaurantInputDataDTO("Bar do Zé", "Rua A, 123", "Brasileira", "08:00-22:00", ownerId);
+        var saved = Restaurant.create("Bar do Zé", "Rua A, 123", "Brasileira", "08:00-22:00", ownerId);
+
+        when(restaurantGateway.findByName("Bar do Zé")).thenReturn(Optional.empty());
+        when(userGateway.findById(ownerId)).thenReturn(Optional.of(owner));
+        when(restaurantGateway.saveNewRestaurant(any())).thenReturn(saved);
+
+        var result = useCase.run(ownerToken, input);
+
+        assertThat(result.getOwnerId()).isEqualTo(ownerId);
+    }
+
+    @Test
+    void shouldThrowForbiddenWhenCreatingRestaurantForOtherOwnerWithoutCreateAllPermission() {
+        UserType ownerType = UserType.create(
+                UUID.randomUUID(), "Dono de Restaurante", Set.of(Permission.CREATE_RESTAURANT));
+        UserToken ownerToken = new UserToken(
+                UUID.randomUUID(), "Dono", "dono@ex.com", "dono", ownerType);
+
+        var input = new CreateRestaurantInputDataDTO(
+                "Bar do Zé", "Rua A, 123", "Brasileira", "08:00-22:00", UUID.randomUUID());
+
+        assertThatThrownBy(() -> useCase.run(ownerToken, input))
                 .isInstanceOf(ForbiddenActionException.class);
 
         verify(restaurantGateway, never()).findByName(any());
