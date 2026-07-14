@@ -31,20 +31,15 @@ public class ControllerExceptionsHandler {
     private static final Logger logger = LoggerFactory.getLogger(ControllerExceptionsHandler.class);
     private static final String ERROR_BASE_URI = "/errors/";
 
-    // * Spring Exceptions
-
-    // ── Request ─────────────────────────────────────────────────────────────
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ProblemDetail> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
-        logger.error("Invalid request body", e);
-        ProblemDetail problem = buildProblem(
-                HttpStatus.BAD_REQUEST,
-                "invalid-request-body",
-                "Invalid Request Body",
-                "The request body is invalid");
-        return ResponseEntity.badRequest().body(problem);
+    private ProblemDetail buildProblem(HttpStatus status, String errorType,
+            String title, String detail) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
+        problem.setType(URI.create(ERROR_BASE_URI + errorType));
+        problem.setTitle(title);
+        return problem;
     }
+
+    // * Spring Exceptions
 
     // ── Bean Validation (@Valid) ────────────────────────────────────────────
 
@@ -67,12 +62,17 @@ public class ControllerExceptionsHandler {
         return ResponseEntity.badRequest().body(problem);
     }
 
-    private ProblemDetail buildProblem(HttpStatus status, String errorType,
-            String title, String detail) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
-        problem.setType(URI.create(ERROR_BASE_URI + errorType));
-        problem.setTitle(title);
-        return problem;
+    // ── Request ─────────────────────────────────────────────────────────────
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        logger.error("Invalid request body", e);
+        ProblemDetail problem = buildProblem(
+                HttpStatus.BAD_REQUEST,
+                "invalid-request-body",
+                "Invalid Request Body",
+                "The request body is invalid");
+        return ResponseEntity.badRequest().body(problem);
     }
 
     // * Business Rule Exceptions
