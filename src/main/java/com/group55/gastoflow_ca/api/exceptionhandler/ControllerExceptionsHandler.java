@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,6 +32,19 @@ public class ControllerExceptionsHandler {
     private static final String ERROR_BASE_URI = "/errors/";
 
     // * Spring Exceptions
+
+    // ── Request ─────────────────────────────────────────────────────────────
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ProblemDetail> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        logger.error("Invalid request body", e);
+        ProblemDetail problem = buildProblem(
+                HttpStatus.BAD_REQUEST,
+                "invalid-request-body",
+                "Invalid Request Body",
+                "The request body is invalid");
+        return ResponseEntity.badRequest().body(problem);
+    }
 
     // ── Bean Validation (@Valid) ────────────────────────────────────────────
 
